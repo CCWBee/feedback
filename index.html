@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feedback paper prompt-builder</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#151a2c;
+      --border:#252b40;
+      --text:#f5f7ff;
+      --muted:#a7b0c2;
+      --accent:#4f8cff;
+      --accentSoft:rgba(79,140,255,.12);
+      --good:#3cbf84;
+      --warn:#ffb020;
+      --bad:#ff5a5a;
+      --shadow:0 18px 45px rgba(0,0,0,.6);
+      --rLg:14px;
+      --rXl:18px;
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{
+      margin:0;min-height:100vh;
+      background:radial-gradient(circle at top left,#182235,#050712 55%);
+      color:var(--text);
+      display:flex;align-items:stretch;justify-content:center
+    }
+    .shell{
+      width:100%;max-width:1180px;margin:24px;
+      background:linear-gradient(145deg,rgba(29,35,61,.98),rgba(7,10,22,.98));
+      border-radius:22px;box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.04);
+      overflow:hidden;display:flex;flex-direction:column
+    }
+    header{
+      padding:18px 22px 14px 22px;
+      border-bottom:1px solid rgba(255,255,255,.04);
+      display:flex;gap:14px;align-items:center
+    }
+    .badge{
+      padding:4px 10px;border-radius:999px;
+      font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+      background:rgba(79,140,255,.18);color:var(--accent);
+      border:1px solid rgba(79,140,255,.4)
+    }
+    .title{display:flex;flex-direction:column;gap:2px}
+    .title h1{margin:0;font-size:18px;font-weight:650;letter-spacing:.01em}
+    .title p{margin:0;font-size:12px;color:var(--muted)}
+    .topRight{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .pill{
+      font-size:11px;padding:4px 8px;border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);background:rgba(0,0,0,.18);
+      display:flex;gap:6px;align-items:center
+    }
+    .pill .dot{width:6px;height:6px;border-radius:999px;background:var(--accentSoft)}
+    .pill.active{border-color:var(--accent);color:var(--accent);background:rgba(79,140,255,.12)}
+    .pill.active .dot{background:var(--accent)}
+
+    main{display:grid;grid-template-columns:280px 1fr;min-height:560px}
+    @media(max-width:920px){main{grid-template-columns:1fr}.side{border-right:none;border-bottom:1px solid var(--border)}}
+
+    .side{
+      padding:16px 14px;border-right:1px solid var(--border);
+      background:radial-gradient(circle at top,rgba(79,140,255,.12),transparent 55%)
+    }
+    .side h2{margin:0 0 10px 0;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+    .taskList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+    .taskItem{
+      border-radius:10px;padding:8px 10px;
+      border:1px solid transparent;cursor:pointer;
+      display:flex;flex-direction:column;gap:2px
+    }
+    .taskItem strong{font-size:13px;font-weight:650}
+    .taskItem small{font-size:11px;color:var(--muted)}
+    .taskItem.active{background:rgba(79,140,255,.14);border-color:var(--accent);box-shadow:0 0 0 1px rgba(79,140,255,.35)}
+    .taskItem.completed:not(.active){border-color:rgba(60,191,132,.6);background:rgba(60,191,132,.12)}
+
+    .sideBox{
+      margin-top:18px;font-size:11px;padding:10px;border-radius:10px;
+      border:1px dashed rgba(148,163,184,.7);
+      color:var(--muted);background:rgba(15,23,42,.7)
+    }
+    .sideBox strong{color:var(--text)}
+
+    .content{padding:18px 20px 16px 20px;overflow-y:auto}
+    .step{display:none;animation:fadeIn .18s ease-out}
+    .step.active{display:block}
+    .step h2{margin:0 0 8px 0;font-size:17px;font-weight:650}
+    .step p.desc{margin:0 0 16px 0;font-size:13px;color:var(--muted)}
+
+    .metaRow{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;font-size:11px;color:var(--muted)}
+    .metaRow span{padding:3px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.7)}
+    .metaRow span.role{border-color:rgba(79,140,255,.7);color:var(--accent);background:rgba(79,140,255,.1)}
+    .metaRow span.purpose{border-color:rgba(252,211,77,.8);color:#facc15;background:rgba(252,211,77,.08)}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 16px}
+    .field{display:flex;flex-direction:column;gap:4px}
+    .field label{font-size:12px;color:var(--text);display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+    .flag{font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid rgba(148,163,184,.7);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .flag.mand{border-color:rgba(239,68,68,.8);color:#fecaca}
+
+    textarea,input,select{
+      border-radius:10px;border:1px solid var(--border);
+      background:rgba(15,23,42,.95);color:var(--text);
+      padding:8px 9px;font-size:13px;outline:none;
+      transition:border-color .12s ease,box-shadow .12s ease,background .12s ease;
+    }
+    textarea{resize:vertical;min-height:70px}
+    input{min-height:32px}
+    textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 1px rgba(79,140,255,.35);background:rgba(15,23,42,1)}
+    .hint{font-size:11px;color:var(--muted)}
+    .missing textarea,.missing input,.missing select{border-color:var(--bad);box-shadow:0 0 0 1px rgba(248,113,113,.5)}
+
+    .repeatWrap{margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .repeatTop{padding:10px 12px;display:flex;gap:10px;align-items:center;background:rgba(0,0,0,.12);border-bottom:1px solid rgba(255,255,255,.05)}
+    .repeatTop .spacer{margin-left:auto}
+    .repeatBody{padding:12px}
+    .repeatItem{border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;margin-bottom:10px;background:rgba(15,23,42,.55)}
+    .repeatItem:last-child{margin-bottom:0}
+    .repeatItemHead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+    .repeatItemHead strong{font-size:13px;font-weight:650}
+    .repeatItemHead small{font-size:11px;color:var(--muted)}
+    .miniBtn{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(15,23,42,.92);color:var(--text);cursor:pointer}
+    .miniBtn:hover{background:rgba(30,41,59,1)}
+
+    footer{
+      padding:10px 16px 14px 16px;border-top:1px solid var(--border);
+      display:flex;gap:10px;align-items:center
+    }
+    .nav{display:flex;gap:8px}
+    button{
+      border-radius:999px;border:1px solid transparent;
+      font-size:13px;padding:7px 14px;cursor:pointer;
+      background:rgba(15,23,42,.9);color:var(--text);
+      transition:background .12s ease,border-color .12s ease,transform .08s ease
+    }
+    button:disabled{opacity:.5;cursor:default}
+    .secondary{border-color:var(--border);background:rgba(15,23,42,1)}
+    .secondary:hover:not(:disabled){background:rgba(30,41,59,1);transform:translateY(-1px)}
+    .primary{
+      background:linear-gradient(135deg,#4f8cff,#2563eb);
+      border-color:rgba(191,219,254,.12);
+      box-shadow:0 12px 28px rgba(37,99,235,.45)
+    }
+    .primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 14px 32px rgba(37,99,235,.55)}
+    .note{margin-left:auto;font-size:11px;color:var(--muted)}
+    .note strong{color:var(--text)}
+
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="badge">Regulation · feedback paper</div>
+      <div class="title">
+        <h1>Feedback paper · agent prompt-builder</h1>
+        <p>Single file workflow for building prompts that draft a feedback paper responding to consultation submissions.</p>
+      </div>
+      <div class="topRight">
+        <div class="pill" id="progressPill"><span class="dot"></span><span id="progressText">Step 1 of 9</span></div>
+      </div>
+    </header>
+
+    <main>
+      <aside class="side">
+        <h2>Steps</h2>
+        <ul class="taskList" id="taskList">
+          <li class="taskItem active" data-step="0"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
+          <li class="taskItem" data-step="1"><strong>2. Contents skeleton</strong><small>Lock the headings and shape.</small></li>
+          <li class="taskItem" data-step="2"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
+          <li class="taskItem" data-step="3"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
+          <li class="taskItem" data-step="4"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
+          <li class="taskItem" data-step="5"><strong>6. International context</strong><small>Calibration, not decoration.</small></li>
+          <li class="taskItem" data-step="6"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
+          <li class="taskItem" data-step="7"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
+          <li class="taskItem" data-step="8"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
+        </ul>
+
+        <div class="sideBox">
+          <strong>Output</strong><br />
+          Download a Word <code>.doc</code> containing nine prompts, one per step, prefilled with your inputs. Paste each prompt into your LLM agent to generate the corresponding section.
+        </div>
+      </aside>
+
+      <section class="content">
+        <!-- Step 1 -->
+        <section class="step active" data-step="0">
+          <h2>Step 1: set the frame metadata</h2>
+          <p class="desc">Front matter anchors. Keep it administrative and plain.</p>
+          <div class="metaRow">
+            <span class="role">Role: lead drafter</span>
+            <span class="purpose">Purpose: front matter</span>
+            <span>Style: factual, neutral</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Consultation title <span class="flag mand">Mandatory</span></label>
+              <input id="s1_title" placeholder="Example: CP 1/2026 Sustainable finance proposals" />
+              <small class="hint">Use the public title as issued.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Consultation publication date <span class="flag mand">Mandatory</span></label>
+              <input id="s1_pubdate" placeholder="Example: 12 January 2026" />
+              <small class="hint">As shown on the consultation document.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Public URL for consultation <span class="flag mand">Mandatory</span></label>
+              <input id="s1_url" placeholder="Example: https://..." />
+              <small class="hint">One stable public link.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>One sentence: what this feedback paper reports <span class="flag mand">Mandatory</span></label>
+              <textarea id="s1_oneliner" placeholder="Example: This feedback paper summarises responses received to the consultation and sets out our intended approach." ></textarea>
+              <small class="hint">Keep it tight and descriptive.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Contact inbox for enquiries <span class="flag mand">Mandatory</span></label>
+              <input id="s1_inbox" placeholder="Example: consultation@regulator.xx" />
+              <small class="hint">One mailbox.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Issue month and year for feedback paper <span class="flag mand">Mandatory</span></label>
+              <input id="s1_issue" placeholder="Example: March 2026" />
+              <small class="hint">Used on the cover page.</small>
+            </div>
+            <div class="field">
+              <label>Document reference / code <span class="flag">Optional</span></label>
+              <input id="s1_ref" placeholder="Example: FP 1/2026" />
+              <small class="hint">If you use an internal doc numbering scheme.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 2 -->
+        <section class="step" data-step="1">
+          <h2>Step 2: lock the contents skeleton</h2>
+          <p class="desc">Fix the headings early so everything else snaps into place. Default is the proven five subheadings.</p>
+          <div class="metaRow">
+            <span class="role">Role: document architect</span>
+            <span class="purpose">Purpose: contents and headings</span>
+            <span>Output: contents-ready skeleton</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Executive summary subheadings <span class="flag mand">Mandatory</span></label>
+              <textarea id="s2_execHeads" placeholder="Default: Introduction\nBackground\nInternational context\nFeedback summary\nPolicy position and next steps"></textarea>
+              <small class="hint">Use five subheadings, one per line.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Main body structure <span class="flag mand">Mandatory</span></label>
+              <textarea id="s2_bodyStruct" placeholder="Default: Consultation feedback and our comments, organised question-by-question across thematic headings"></textarea>
+              <small class="hint">One sentence describing how the main body is arranged.</small>
+            </div>
+            <div class="field">
+              <label>Include sections <span class="flag">Optional</span></label>
+              <textarea id="s2_includes" placeholder="Example: Respondents; Glossary; Annex: quantitative summary table"></textarea>
+              <small class="hint">Any additional standard sections you want every time.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 3 -->
+        <section class="step" data-step="2">
+          <h2>Step 3: restate what the consultation covered</h2>
+          <p class="desc">Lead with scope, not conclusions. Two or three key areas is enough.</p>
+          <div class="metaRow">
+            <span class="role">Role: senior policy drafter</span>
+            <span class="purpose">Purpose: executive summary, introduction</span>
+            <span>Style: short bullets</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Key areas addressed (2 to 3) <span class="flag mand">Mandatory</span></label>
+              <textarea id="s3_areas" placeholder="Example:\n- Governance and oversight expectations\n- Disclosure and anti-greenwashing controls\n- Transition planning and risk management"></textarea>
+              <small class="hint">Bullets are fine.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Regulated population in scope <span class="flag mand">Mandatory</span></label>
+              <textarea id="s3_population" placeholder="Example: registered persons carrying on investment business, fund services, and deposit taking business"></textarea>
+              <small class="hint">High level description only.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Number of consultation questions <span class="flag mand">Mandatory</span></label>
+              <input id="s3_qcount" placeholder="Example: 18" />
+              <small class="hint">Just the number.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 4 -->
+        <section class="step" data-step="3">
+          <h2>Step 4: set out policy and programme context</h2>
+          <p class="desc">Write background as why now, why this route, why this audience. Avoid advocacy.</p>
+          <div class="metaRow">
+            <span class="role">Role: policy lead</span>
+            <span class="purpose">Purpose: executive summary, background</span>
+            <span>Lens: regulatory rationale</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Internal drivers and programme references <span class="flag mand">Mandatory</span></label>
+              <textarea id="s4_drivers" placeholder="Example: strategic plan 2025-27 objective on business integrity; workplan item; Board decision date"></textarea>
+              <small class="hint">Include internal drivers, action plan references, earlier steps.</small>
+            </div>
+            <div class="field">
+              <label>What changed since related work <span class="flag">Optional</span></label>
+              <textarea id="s4_changed" placeholder="Example: new international standard; thematic review findings; market growth; emerging conduct risks"></textarea>
+              <small class="hint">If nothing changed, leave blank.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 5 -->
+        <section class="step" data-step="4">
+          <h2>Step 5: capture engagement facts</h2>
+          <p class="desc">Treat these as audit facts, one pass. Keep them consistent across the document.</p>
+          <div class="metaRow">
+            <span class="role">Role: consultation manager</span>
+            <span class="purpose">Purpose: engagement facts paragraph and respondents section</span>
+            <span>Handling: factual counts</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Number of formal responses <span class="flag mand">Mandatory</span></label>
+              <input id="s5_responses" placeholder="Example: 12" />
+              <small class="hint">Formal written submissions received.</small>
+            </div>
+            <div class="field">
+              <label>Events held and participation <span class="flag">Optional</span></label>
+              <textarea id="s5_events" placeholder="Example: 2 drop-in sessions (35 participants total); 1 industry roundtable"></textarea>
+              <small class="hint">Include format and rough counts.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Respondent categories (broad) <span class="flag mand">Mandatory</span></label>
+              <textarea id="s5_categories" placeholder="Example: supervised entities; industry associations; professional advisers"></textarea>
+              <small class="hint">Do not identify individual respondents here.</small>
+            </div>
+            <div class="field">
+              <label>Confidentiality handling notes <span class="flag">Optional</span></label>
+              <textarea id="s5_conf" placeholder="Example: submissions treated as non-confidential unless stated; anonymised quotes only"></textarea>
+              <small class="hint">Only include what you actually do.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 6 -->
+        <section class="step" data-step="5">
+          <h2>Step 6: international context for calibration</h2>
+          <p class="desc">Keep it relevant and short. Two to four external developments, then one linking sentence.</p>
+          <div class="metaRow">
+            <span class="role">Role: policy analyst</span>
+            <span class="purpose">Purpose: executive summary, international context</span>
+            <span>Rule: calibration only</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>External developments (2 to 4) <span class="flag mand">Mandatory</span></label>
+              <textarea id="s6_devs" placeholder="Example:\n- EU: CSRD and ESRS implementation\n- UK: FCA SDR and anti-greenwashing rule\n- US: SEC climate disclosure debates"></textarea>
+              <small class="hint">Bullets. Keep them relevant.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Linking sentence to your approach <span class="flag mand">Mandatory</span></label>
+              <textarea id="s6_link" placeholder="Example: These developments informed our proportionate approach, aiming to align where sensible while reflecting local market size and risk profile."></textarea>
+              <small class="hint">One sentence, no advocacy.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 7 -->
+        <section class="step" data-step="6">
+          <h2>Step 7: distil feedback themes</h2>
+          <p class="desc">Four to six themes, phrased neutrally. Each theme should include what was said and the tension it creates.</p>
+          <div class="metaRow">
+            <span class="role">Role: synthesis lead</span>
+            <span class="purpose">Purpose: executive summary, feedback summary</span>
+            <span>Output: themes</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Coding frame <span class="flag mand">Mandatory</span></label>
+              <textarea id="s7_frame" placeholder="Default: intent; method; definitions; proportionality; burden; alignment"></textarea>
+              <small class="hint">Comma separated or short list.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Theme candidates (4 to 6) <span class="flag mand">Mandatory</span></label>
+              <textarea id="s7_themes" placeholder="Example:\n1) Proportionality requests for smaller firms\n2) Clarification of definitions and scope\n3) Implementation timeframes and transition\n4) Evidence expectations and data sources\n5) Supervisory approach and assurance"></textarea>
+              <small class="hint">Numbered list is easiest.</small>
+            </div>
+            <div class="field">
+              <label>Any notable divergences <span class="flag">Optional</span></label>
+              <textarea id="s7_div" placeholder="Example: associations broadly supportive, some firms raised burden concerns on reporting"></textarea>
+              <small class="hint">High level only.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 8 -->
+        <section class="step" data-step="7">
+          <h2>Step 8: policy position and next steps</h2>
+          <p class="desc">State decisions clearly, then what changed due to feedback, then what happens next. Include timeline anchors.</p>
+          <div class="metaRow">
+            <span class="role">Role: decision drafter</span>
+            <span class="purpose">Purpose: executive summary, policy position and next steps</span>
+            <span>Output: decisions and timetable</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Decisions list <span class="flag mand">Mandatory</span></label>
+              <textarea id="s8_decisions" placeholder="Example:\n- Accept Proposal A with amendments\n- Defer Proposal B pending further evidence\n- Reject Option C"></textarea>
+              <small class="hint">Use accept, amend, defer, reject, or similar.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Delivery route <span class="flag mand">Mandatory</span></label>
+              <textarea id="s8_route" placeholder="Example: update to Codes of Practice; supporting guidance note; supervision messaging; training; transition period"></textarea>
+              <small class="hint">Mechanism for implementation.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Timeline anchors <span class="flag mand">Mandatory</span></label>
+              <textarea id="s8_timeline" placeholder="Example:\n- Q2 2026: publish final guidance\n- Q3 2026: Codes updated\n- 6 months transition period"></textarea>
+              <small class="hint">Quarters and months are fine.</small>
+            </div>
+            <div class="field">
+              <label>What changed due to feedback <span class="flag">Optional</span></label>
+              <textarea id="s8_changed" placeholder="Example: narrowed scope for small firms; added examples; extended transition"></textarea>
+              <small class="hint">Keep it concrete.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 9 -->
+        <section class="step" data-step="8">
+          <h2>Step 9: build question modules, respondents table, glossary</h2>
+          <p class="desc">Create repeatable question modules, then safe respondent counts by sector, then a glossary of defined terms.</p>
+          <div class="metaRow">
+            <span class="role">Role: section drafter</span>
+            <span class="purpose">Purpose: main body modules and back matter</span>
+            <span>Module: overview, feedback, response, outcome</span>
+          </div>
+
+          <div class="repeatWrap">
+            <div class="repeatTop">
+              <strong style="font-size:13px">Question modules</strong>
+              <span class="hint">Add as many as needed. The export will include a prompt per module.</span>
+              <span class="spacer"></span>
+              <button class="miniBtn" id="addQ">+ Add question</button>
+            </div>
+            <div class="repeatBody" id="qContainer"></div>
+          </div>
+
+          <div class="repeatWrap" style="margin-top:14px">
+            <div class="repeatTop">
+              <strong style="font-size:13px">Respondent counts by sector</strong>
+              <span class="hint">Sector and count only, safe and informative.</span>
+              <span class="spacer"></span>
+              <button class="miniBtn" id="addSector">+ Add sector line</button>
+            </div>
+            <div class="repeatBody" id="sectorContainer"></div>
+          </div>
+
+          <div class="repeatWrap" style="margin-top:14px">
+            <div class="repeatTop">
+              <strong style="font-size:13px">Glossary terms</strong>
+              <span class="hint">Defined terms and abbreviations used in the paper.</span>
+              <span class="spacer"></span>
+              <button class="miniBtn" id="addTerm">+ Add term</button>
+            </div>
+            <div class="repeatBody" id="termContainer"></div>
+          </div>
+
+          <div class="grid" style="margin-top:14px">
+            <div class="field" data-required="true">
+              <label>Quantification approach language <span class="flag mand">Mandatory</span></label>
+              <textarea id="s9_quant" placeholder="Default: Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority."></textarea>
+              <small class="hint">This becomes a constraint in your prompts.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Tone and framing constraints <span class="flag mand">Mandatory</span></label>
+              <textarea id="s9_tone" placeholder="Default: factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions."></textarea>
+              <small class="hint">Baked into every agent prompt.</small>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer>
+      <div class="nav">
+        <button class="secondary" id="prev">← Back</button>
+        <button class="secondary" id="next">Next →</button>
+      </div>
+      <button class="primary" id="export">Download Word prompts</button>
+      <div class="note"><strong>File:</strong> feedback_paper_agent_prompts.doc</div>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  const steps = Array.from(document.querySelectorAll('.step'));
+  const items = Array.from(document.querySelectorAll('.taskItem'));
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const exportBtn = document.getElementById('export');
+  const progressText = document.getElementById('progressText');
+  const progressPill = document.getElementById('progressPill');
+  let current = 0;
+
+  function show(n){
+    if(n<0||n>=steps.length) return;
+    steps.forEach((s,i)=>s.classList.toggle('active',i===n));
+    items.forEach((it,i)=>{
+      it.classList.toggle('active',i===n);
+      if(i<n) it.classList.add('completed'); else it.classList.remove('completed');
+    });
+    current=n;
+    prev.disabled = n===0;
+    next.disabled = n===steps.length-1;
+    progressText.textContent = 'Step ' + (n+1) + ' of ' + steps.length;
+    if(n===steps.length-1) progressPill.classList.add('active'); else progressPill.classList.remove('active');
+  }
+
+  items.forEach((it,i)=>it.addEventListener('click',()=>show(i)));
+  prev.addEventListener('click',()=>show(current-1));
+  next.addEventListener('click',()=>{
+    // nudge validation on navigation to avoid end-of-work surprise
+    validateStep(current,true);
+    show(current+1);
+  });
+
+  function get(id){
+    const el=document.getElementById(id);
+    return el? (el.value||'').trim():'';
+  }
+
+  function esc(s){
+    return (s||'')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  function validateStep(stepIndex,soft){
+    const step = steps[stepIndex];
+    if(!step) return true;
+    let ok=true;
+    const fields = Array.from(step.querySelectorAll('.field[data-required="true"]'));
+    fields.forEach(f=>{
+      const input = f.querySelector('textarea,input,select');
+      const has = input && input.value && input.value.trim().length;
+      if(!has){ f.classList.add('missing'); ok=false; }
+      else f.classList.remove('missing');
+    });
+    if(!ok && !soft){ alert('Some mandatory fields are empty on this step.'); }
+    return ok;
+  }
+
+  function validateAll(showAlert){
+    let ok=true;
+    steps.forEach((s,i)=>{ if(!validateStep(i,true)) ok=false; });
+    if(!ok && showAlert) alert('Some mandatory fields are empty. They are highlighted in red.');
+    return ok;
+  }
+
+  // Repeaters: questions, sectors, glossary
+  const qContainer = document.getElementById('qContainer');
+  const addQ = document.getElementById('addQ');
+  const sectorContainer = document.getElementById('sectorContainer');
+  const addSector = document.getElementById('addSector');
+  const termContainer = document.getElementById('termContainer');
+  const addTerm = document.getElementById('addTerm');
+
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+
+  function newQuestion(index){
+    const id=uid();
+    const wrap=document.createElement('div');
+    wrap.className='repeatItem';
+    wrap.dataset.qid=id;
+    wrap.innerHTML=`
+      <div class="repeatItemHead">
+        <strong>Question module ${index}</strong>
+        <small>overview, feedback themes, response, outcome</small>
+        <span style="margin-left:auto"></span>
+        <button class="miniBtn" data-remove="q">Remove</button>
+      </div>
+      <div class="grid">
+        <div class="field" data-required="true">
+          <label>Thematic heading (section name) <span class="flag mand">Mandatory</span></label>
+          <input id="q_${id}_theme" placeholder="Example: governance and oversight" />
+          <small class="hint">Used to group modules in the paper.</small>
+        </div>
+        <div class="field" data-required="true">
+          <label>Consultation question text <span class="flag mand">Mandatory</span></label>
+          <textarea id="q_${id}_qtext" placeholder="Paste the exact CP question"></textarea>
+          <small class="hint">Keep this exact, do not paraphrase.</small>
+        </div>
+        <div class="field" data-required="true">
+          <label>What the CP proposed (one paragraph) <span class="flag mand">Mandatory</span></label>
+          <textarea id="q_${id}_proposal" placeholder="One paragraph summary of intent and proposed approach"></textarea>
+          <small class="hint">Describe the purpose of the proposal being consulted on.</small>
+        </div>
+        <div class="field" data-required="true">
+          <label>Feedback themes and divergence <span class="flag mand">Mandatory</span></label>
+          <textarea id="q_${id}_themes" placeholder="Bullets: what respondents said, including any divergence"></textarea>
+          <small class="hint">Group by common views, avoid labelling camps.</small>
+        </div>
+        <div class="field" data-required="true">
+          <label>Regulator response position <span class="flag mand">Mandatory</span></label>
+          <textarea id="q_${id}_response" placeholder="What we think and why, anchored to framework and proportionality"></textarea>
+          <small class="hint">Reasoning, not rhetoric.</small>
+        </div>
+        <div class="field" data-required="true">
+          <label>Outcome decision and delivery mechanism <span class="flag mand">Mandatory</span></label>
+          <textarea id="q_${id}_outcome" placeholder="Outcome: accept/amend/defer/reject; what document changes; timing"></textarea>
+          <small class="hint">One or two decisive lines plus mechanism.</small>
+        </div>
+        <div class="field">
+          <label>Any quantitative results you trust <span class="flag">Optional</span></label>
+          <textarea id="q_${id}_quant" placeholder="Example: 8 supportive, 3 mixed, 1 opposed; or leave blank"></textarea>
+          <small class="hint">Only include if supported.</small>
+        </div>
+      </div>
+    `;
+    wrap.querySelector('[data-remove="q"]').addEventListener('click',()=>{ wrap.remove(); renumberQuestions(); });
+    return wrap;
+  }
+
+  function renumberQuestions(){
+    const qs = Array.from(qContainer.querySelectorAll('.repeatItem'));
+    qs.forEach((q,i)=>{
+      const h=q.querySelector('.repeatItemHead strong');
+      if(h) h.textContent='Question module ' + (i+1);
+    });
+  }
+
+  function newSector(index){
+    const id=uid();
+    const wrap=document.createElement('div');
+    wrap.className='repeatItem';
+    wrap.dataset.sid=id;
+    wrap.innerHTML=`
+      <div class="repeatItemHead">
+        <strong>Sector line ${index}</strong>
+        <small>sector and count</small>
+        <span style="margin-left:auto"></span>
+        <button class="miniBtn" data-remove="s">Remove</button>
+      </div>
+      <div class="grid">
+        <div class="field" data-required="true">
+          <label>Sector name <span class="flag mand">Mandatory</span></label>
+          <input id="s_${id}_name" placeholder="Example: investment business" />
+        </div>
+        <div class="field" data-required="true">
+          <label>Count <span class="flag mand">Mandatory</span></label>
+          <input id="s_${id}_count" placeholder="Example: 5" />
+        </div>
+        <div class="field">
+          <label>Notes <span class="flag">Optional</span></label>
+          <input id="s_${id}_note" placeholder="Example: includes one association" />
+        </div>
+      </div>
+    `;
+    wrap.querySelector('[data-remove="s"]').addEventListener('click',()=>wrap.remove());
+    return wrap;
+  }
+
+  function newTerm(index){
+    const id=uid();
+    const wrap=document.createElement('div');
+    wrap.className='repeatItem';
+    wrap.dataset.tid=id;
+    wrap.innerHTML=`
+      <div class="repeatItemHead">
+        <strong>Term ${index}</strong>
+        <small>glossary entry</small>
+        <span style="margin-left:auto"></span>
+        <button class="miniBtn" data-remove="t">Remove</button>
+      </div>
+      <div class="grid">
+        <div class="field" data-required="true">
+          <label>Term <span class="flag mand">Mandatory</span></label>
+          <input id="t_${id}_term" placeholder="Example: registered person" />
+        </div>
+        <div class="field" data-required="true">
+          <label>Definition <span class="flag mand">Mandatory</span></label>
+          <textarea id="t_${id}_def" placeholder="Plain definition as used in the paper"></textarea>
+        </div>
+      </div>
+    `;
+    wrap.querySelector('[data-remove="t"]').addEventListener('click',()=>wrap.remove());
+    return wrap;
+  }
+
+  addQ.addEventListener('click',()=>{
+    const n = qContainer.querySelectorAll('.repeatItem').length + 1;
+    qContainer.appendChild(newQuestion(n));
+  });
+  addSector.addEventListener('click',()=>{
+    const n = sectorContainer.querySelectorAll('.repeatItem').length + 1;
+    sectorContainer.appendChild(newSector(n));
+  });
+  addTerm.addEventListener('click',()=>{
+    const n = termContainer.querySelectorAll('.repeatItem').length + 1;
+    termContainer.appendChild(newTerm(n));
+  });
+
+  // seed one of each so user sees the pattern
+  qContainer.appendChild(newQuestion(1));
+  sectorContainer.appendChild(newSector(1));
+  termContainer.appendChild(newTerm(1));
+
+  function collect(){
+    const data={
+      s1:{title:get('s1_title'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
+      s2:{execHeads:get('s2_execHeads'),bodyStruct:get('s2_bodyStruct'),includes:get('s2_includes')},
+      s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
+      s4:{drivers:get('s4_drivers'),changed:get('s4_changed')},
+      s5:{responses:get('s5_responses'),events:get('s5_events'),categories:get('s5_categories'),conf:get('s5_conf')},
+      s6:{devs:get('s6_devs'),link:get('s6_link')},
+      s7:{frame:get('s7_frame'),themes:get('s7_themes'),div:get('s7_div')},
+      s8:{decisions:get('s8_decisions'),route:get('s8_route'),timeline:get('s8_timeline'),changed:get('s8_changed')},
+      s9:{quant:get('s9_quant'),tone:get('s9_tone')},
+      questions:[],
+      sectors:[],
+      terms:[]
+    };
+
+    // questions
+    Array.from(qContainer.querySelectorAll('.repeatItem')).forEach(w=>{
+      const id=w.dataset.qid;
+      data.questions.push({
+        theme:get(`q_${id}_theme`),
+        qtext:get(`q_${id}_qtext`),
+        proposal:get(`q_${id}_proposal`),
+        themes:get(`q_${id}_themes`),
+        response:get(`q_${id}_response`),
+        outcome:get(`q_${id}_outcome`),
+        quant:get(`q_${id}_quant`)
+      });
+    });
+
+    // sectors
+    Array.from(sectorContainer.querySelectorAll('.repeatItem')).forEach(w=>{
+      const id=w.dataset.sid;
+      data.sectors.push({name:get(`s_${id}_name`),count:get(`s_${id}_count`),note:get(`s_${id}_note`)});
+    });
+
+    // terms
+    Array.from(termContainer.querySelectorAll('.repeatItem')).forEach(w=>{
+      const id=w.dataset.tid;
+      data.terms.push({term:get(`t_${id}_term`),def:get(`t_${id}_def`)});
+    });
+
+    return data;
+  }
+
+  function bool(v){ return v && v.length ? v : '(not specified)'; }
+
+  function buildDoc(data){
+    const now = new Date().toLocaleString('en-GB');
+
+    const tone = esc(bool(data.s9.tone));
+    const quantRule = esc(bool(data.s9.quant));
+
+    function commonConstraints(){
+      return `
+        <ul>
+          <li>Use British English.</li>
+          <li>Professional regulatory audience.</li>
+          <li>Keep tone factual and neutral, decision-led.</li>
+          <li>Apply the tone and framing rules: ${tone}</li>
+          <li>Quantification rule: ${quantRule}</li>
+        </ul>`;
+    }
+
+    function p(s){ return '<p>' + s + '</p>'; }
+
+    // Step 1 prompt
+    let out='';
+    out += `<h2>Step 1: frame metadata</h2>`;
+    out += `<h3>Agent prompt</h3>`;
+    out += p('You are a senior regulatory drafter. Your task is to draft the front matter for a feedback paper responding to a regulatory consultation, using the inputs below.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Consultation title: ${esc(bool(data.s1.title))}</li>
+      <li>Consultation publication date: ${esc(bool(data.s1.pubdate))}</li>
+      <li>Consultation URL: ${esc(bool(data.s1.url))}</li>
+      <li>One sentence description of this feedback paper: ${esc(bool(data.s1.oneliner))}</li>
+      <li>Contact inbox: ${esc(bool(data.s1.inbox))}</li>
+      <li>Issue month and year: ${esc(bool(data.s1.issue))}</li>
+      <li>Document reference (if any): ${esc(bool(data.s1.ref))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>Cover page style front matter including title, issue date, contact inbox, and link back to the consultation.</li>
+      <li>One line describing what the paper reports, suitable for the first page.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Restate your understanding of the inputs in one short sentence.</li>
+      <li>Draft front matter only. Do not draft any executive summary or body text.</li>
+    </ol><hr/>`;
+
+    // Step 2 prompt
+    out += `<h2>Step 2: contents skeleton</h2><h3>Agent prompt</h3>`;
+    out += p('You are a regulatory document architect. Your task is to produce a contents ready skeleton for a feedback paper, using the headings below.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Executive summary subheadings: ${esc(bool(data.s2.execHeads))}</li>
+      <li>Main body structure: ${esc(bool(data.s2.bodyStruct))}</li>
+      <li>Additional include sections: ${esc(bool(data.s2.includes))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>A short contents page list with the executive summary block, the main body block, and respondents and glossary (plus any additional include sections).</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Provide a clean list representing a contents table. Keep it concise.</li>
+      <li>Do not draft narrative text.</li>
+    </ol><hr/>`;
+
+    // Step 3 prompt
+    out += `<h2>Step 3: consultation scope recap</h2><h3>Agent prompt</h3>`;
+    out += p('You are a senior policy drafter. Your task is to draft the executive summary introduction section, restating what the consultation covered.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Key areas addressed: ${esc(bool(data.s3.areas))}</li>
+      <li>Regulated population in scope: ${esc(bool(data.s3.population))}</li>
+      <li>Number of consultation questions: ${esc(bool(data.s3.qcount))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>One short paragraph describing the consultation scope.</li>
+      <li>A bullet list of the key areas (2 to 3).</li>
+      <li>One sentence stating the number of questions and what the paper covers.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Lead with scope, not conclusions.</li>
+      <li>Avoid evaluative language.</li>
+    </ol><hr/>`;
+
+    // Step 4 prompt
+    out += `<h2>Step 4: background context</h2><h3>Agent prompt</h3>`;
+    out += p('You are the policy lead. Your task is to draft the executive summary background section, explaining why the consultation was undertaken now and how it fits existing programmes.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Internal drivers and programme references: ${esc(bool(data.s4.drivers))}</li>
+      <li>What changed since related work: ${esc(bool(data.s4.changed))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>A short background section (two to four paragraphs).</li>
+      <li>Explicitly distinguish established context from what has changed, if anything has changed.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Write as why now, why this route, why this audience.</li>
+      <li>Anchor claims to the consultation purpose, avoid advocacy.</li>
+    </ol><hr/>`;
+
+    // Step 5 prompt
+    out += `<h2>Step 5: engagement facts</h2><h3>Agent prompt</h3>`;
+    out += p('You are a consultation manager. Your task is to draft the engagement facts paragraph for the executive summary, and the respondents summary section for the back matter.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Number of formal responses: ${esc(bool(data.s5.responses))}</li>
+      <li>Events and participation: ${esc(bool(data.s5.events))}</li>
+      <li>Respondent categories: ${esc(bool(data.s5.categories))}</li>
+      <li>Confidentiality handling notes: ${esc(bool(data.s5.conf))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>One short engagement facts paragraph for the executive summary.</li>
+      <li>A short respondents summary section explaining respondent types at a high level, without naming entities.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Treat counts as fixed facts. Do not infer.</li>
+      <li>Use neutral wording, no implied judgement of response quality.</li>
+    </ol><hr/>`;
+
+    // Step 6 prompt
+    out += `<h2>Step 6: international context</h2><h3>Agent prompt</h3>`;
+    out += p('You are a policy analyst. Your task is to draft the executive summary international context section as calibration relevant to the regulator’s approach.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>External developments: ${esc(bool(data.s6.devs))}</li>
+      <li>Linking sentence to local approach: ${esc(bool(data.s6.link))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>A short section summarising the external developments in two to four bullets.</li>
+      <li>One linking sentence explaining how these informed a proportionate approach.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Keep it relevant and short.</li>
+      <li>Avoid broad commentary, keep it tied to consultation calibration.</li>
+    </ol><hr/>`;
+
+    // Step 7 prompt
+    out += `<h2>Step 7: feedback themes</h2><h3>Agent prompt</h3>`;
+    out += p('You are a synthesis lead. Your task is to produce the executive summary feedback summary section, distilling responses into a small number of themes.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Coding frame: ${esc(bool(data.s7.frame))}</li>
+      <li>Theme candidates: ${esc(bool(data.s7.themes))}</li>
+      <li>Notable divergences: ${esc(bool(data.s7.div))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>Four to six themes, phrased neutrally.</li>
+      <li>For each theme, one line on what respondents said, and one line on the tension or implementation choice it creates.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Do not attribute to named organisations.</li>
+      <li>Keep themes consistent with the coding frame.</li>
+    </ol><hr/>`;
+
+    // Step 8 prompt
+    out += `<h2>Step 8: policy position and next steps</h2><h3>Agent prompt</h3>`;
+    out += p('You are a decision drafter. Your task is to draft the executive summary policy position and next steps section, setting out decisions and the implementation plan.');
+    out += `<p><strong>Inputs:</strong></p><ul>
+      <li>Decisions list: ${esc(bool(data.s8.decisions))}</li>
+      <li>What changed due to feedback: ${esc(bool(data.s8.changed))}</li>
+      <li>Delivery route: ${esc(bool(data.s8.route))}</li>
+      <li>Timeline anchors: ${esc(bool(data.s8.timeline))}</li>
+    </ul>`;
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>A short section stating commitments and decisions.</li>
+      <li>A bullet list showing what changed due to feedback.</li>
+      <li>A simple timeline of next steps.</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>State decisions clearly, then explain changes due to feedback, then describe next actions.</li>
+      <li>Avoid overpromising, stick to concrete deliverables.</li>
+    </ol><hr/>`;
+
+    // Step 9 prompt (includes module template + back matter)
+    out += `<h2>Step 9: question modules, respondents table, glossary</h2><h3>Agent prompt</h3>`;
+    out += p('You are a senior policy drafter. Your task is to draft the main body of a feedback paper, using repeatable question modules, and then produce safe back matter sections for respondents and the glossary.');
+
+    out += `<p><strong>Inputs:</strong></p>`;
+    out += `<ul>
+      <li>Module template: overview, industry feedback, our response, outcome.</li>
+      <li>Quantification approach: ${esc(bool(data.s9.quant))}</li>
+      <li>Tone and framing constraints: ${esc(bool(data.s9.tone))}</li>
+    </ul>`;
+
+    out += `<p><strong>Question modules:</strong></p>`;
+    if(!data.questions.length){
+      out += p('(No question modules provided.)');
+    } else {
+      out += '<ol>';
+      data.questions.forEach((q,i)=>{
+        out += `<li>
+          <p><strong>Thematic heading:</strong> ${esc(bool(q.theme))}</p>
+          <p><strong>Consultation question text:</strong><br/>${esc(bool(q.qtext)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>What the CP proposed:</strong><br/>${esc(bool(q.proposal)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>Feedback themes and divergence:</strong><br/>${esc(bool(q.themes)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>Regulator response position:</strong><br/>${esc(bool(q.response)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>Outcome decision and delivery mechanism:</strong><br/>${esc(bool(q.outcome)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>Quantitative results (if any):</strong><br/>${esc(bool(q.quant)).replace(/\n/g,'<br/>')}</p>
+        </li>`;
+      });
+      out += '</ol>';
+    }
+
+    out += `<p><strong>Respondent counts by sector:</strong></p>`;
+    if(!data.sectors.length){
+      out += p('(No sector lines provided.)');
+    } else {
+      out += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
+      out += '<tr><th>Sector</th><th>Count</th><th>Notes</th></tr>';
+      data.sectors.forEach(s=>{
+        out += `<tr><td>${esc(bool(s.name))}</td><td>${esc(bool(s.count))}</td><td>${esc(bool(s.note))}</td></tr>`;
+      });
+      out += '</table>';
+    }
+
+    out += `<p><strong>Glossary:</strong></p>`;
+    if(!data.terms.length){
+      out += p('(No glossary terms provided.)');
+    } else {
+      out += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
+      out += '<tr><th>Term</th><th>Definition</th></tr>';
+      data.terms.forEach(t=>{
+        out += `<tr><td>${esc(bool(t.term))}</td><td>${esc(bool(t.def)).replace(/\n/g,'<br/>')}</td></tr>`;
+      });
+      out += '</table>';
+    }
+
+    out += `<p><strong>Output:</strong></p><ul>
+      <li>Draft the main body in modules grouped by thematic headings, keeping each module consistent: overview, industry feedback, our response, outcome (and quantitative results only if supported).</li>
+      <li>Draft a respondents section using the sector counts table, without naming entities.</li>
+      <li>Draft a glossary section using the terms provided.</li>
+    </ul>`;
+
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
+    out += `<p><strong>Method:</strong></p><ol>
+      <li>Group modules under the provided thematic headings.</li>
+      <li>Within modules: use neutral summaries of feedback then a clear response and outcome.</li>
+      <li>Where quantification is not supported, use consistent qualitative descriptors.</li>
+      <li>Avoid attributing quotes to named entities unless explicitly instructed.</li>
+    </ol>`;
+
+    const html = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8" />
+  <title>Feedback paper agent prompts</title>
+  <style>
+    body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111827}
+    h1{font-size:18pt;margin-bottom:4pt}
+    h2{font-size:14pt;margin-top:16pt;margin-bottom:4pt}
+    h3{font-size:12pt;margin-top:8pt;margin-bottom:4pt}
+    p{margin:3pt 0}
+    ul,ol{margin-top:2pt;margin-bottom:6pt}
+    hr{border:none;border-top:1px solid #d1d5db;margin:10pt 0}
+    table{margin:6pt 0}
+    th{background:#f3f4f6}
+  </style>
+</head>
+<body>
+  <h1>Feedback paper workflow · agent prompts</h1>
+  <p><strong>Generated on:</strong> ${esc(now)}</p>
+  <p>This file contains nine prompts, one per step, prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
+  ${out}
+</body>
+</html>`;
+
+    return html;
+  }
+
+  function download(filename, html){
+    const blob = new Blob(["\ufeff", html], {type:'application/msword'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  exportBtn.addEventListener('click',()=>{
+    const data = collect();
+    const ok = validateAll(true);
+
+    // validate repeaters required fields
+    function validateRepeater(container){
+      let ok2=true;
+      Array.from(container.querySelectorAll('.repeatItem')).forEach(item=>{
+        Array.from(item.querySelectorAll('.field[data-required="true"]')).forEach(f=>{
+          const input=f.querySelector('textarea,input,select');
+          const has=input && input.value && input.value.trim().length;
+          if(!has){ f.classList.add('missing'); ok2=false; }
+          else f.classList.remove('missing');
+        });
+      });
+      return ok2;
+    }
+
+    const qOk = validateRepeater(qContainer);
+    const sOk = validateRepeater(sectorContainer);
+    const tOk = validateRepeater(termContainer);
+
+    const finalOk = ok && qOk && sOk && tOk;
+    if(!finalOk){
+      const proceed = confirm('Some mandatory fields are empty (including repeatable sections). Generate the Word file anyway?');
+      if(!proceed) return;
+    }
+
+    const doc = buildDoc(data);
+    const ref = (data.s1.ref || '').trim();
+    const safeRef = ref ? ref.replace(/[^A-Za-z0-9_]+/g,'_') : '';
+    const name = safeRef ? `feedback_paper_agent_prompts_${safeRef}.doc` : 'feedback_paper_agent_prompts.doc';
+    download(name, doc);
+  });
+
+  show(0);
+})();
+</script>
+</body>
+</html>
