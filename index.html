@@ -289,7 +289,11 @@
           <div class="grid">
             <div class="field" data-required="true">
               <label>Executive summary subheadings <span class="flag mand">Mandatory</span></label>
-              <textarea id="s2_execHeads" placeholder="Default: Introduction\nBackground\nInternational context\nFeedback summary\nPolicy position and next steps"></textarea>
+              <textarea id="s2_execHeads" placeholder="Default: Introduction
+Background
+International context
+Feedback summary
+Policy position and next steps"></textarea>
               <small class="hint">Use five subheadings, one per line.</small>
             </div>
             <div class="field" data-required="true">
@@ -317,7 +321,10 @@
           <div class="grid">
             <div class="field" data-required="true">
               <label>Key areas addressed (2 to 3) <span class="flag mand">Mandatory</span></label>
-              <textarea id="s3_areas" placeholder="Example:\n- Governance and oversight expectations\n- Disclosure and anti-greenwashing controls\n- Transition planning and risk management"></textarea>
+              <textarea id="s3_areas" placeholder="Example:
+- Governance and oversight expectations
+- Disclosure and anti-greenwashing controls
+- Transition planning and risk management"></textarea>
               <small class="hint">Bullets are fine.</small>
             </div>
             <div class="field" data-required="true">
@@ -401,7 +408,10 @@
           <div class="grid">
             <div class="field" data-required="true">
               <label>External developments (2 to 4) <span class="flag mand">Mandatory</span></label>
-              <textarea id="s6_devs" placeholder="Example:\n- EU: CSRD and ESRS implementation\n- UK: FCA SDR and anti-greenwashing rule\n- US: SEC climate disclosure debates"></textarea>
+              <textarea id="s6_devs" placeholder="Example:
+- EU: CSRD and ESRS implementation
+- UK: FCA SDR and anti-greenwashing rule
+- US: SEC climate disclosure debates"></textarea>
               <small class="hint">Bullets. Keep them relevant.</small>
             </div>
             <div class="field" data-required="true">
@@ -429,7 +439,12 @@
             </div>
             <div class="field" data-required="true">
               <label>Theme candidates (4 to 6) <span class="flag mand">Mandatory</span></label>
-              <textarea id="s7_themes" placeholder="Example:\n1) Proportionality requests for smaller firms\n2) Clarification of definitions and scope\n3) Implementation timeframes and transition\n4) Evidence expectations and data sources\n5) Supervisory approach and assurance"></textarea>
+              <textarea id="s7_themes" placeholder="Example:
+1) Proportionality requests for smaller firms
+2) Clarification of definitions and scope
+3) Implementation timeframes and transition
+4) Evidence expectations and data sources
+5) Supervisory approach and assurance"></textarea>
               <small class="hint">Numbered list is easiest.</small>
             </div>
             <div class="field">
@@ -452,7 +467,10 @@
           <div class="grid">
             <div class="field" data-required="true">
               <label>Decisions list <span class="flag mand">Mandatory</span></label>
-              <textarea id="s8_decisions" placeholder="Example:\n- Accept Proposal A with amendments\n- Defer Proposal B pending further evidence\n- Reject Option C"></textarea>
+              <textarea id="s8_decisions" placeholder="Example:
+- Accept Proposal A with amendments
+- Defer Proposal B pending further evidence
+- Reject Option C"></textarea>
               <small class="hint">Use accept, amend, defer, reject, or similar.</small>
             </div>
             <div class="field" data-required="true">
@@ -462,7 +480,10 @@
             </div>
             <div class="field" data-required="true">
               <label>Timeline anchors <span class="flag mand">Mandatory</span></label>
-              <textarea id="s8_timeline" placeholder="Example:\n- Q2 2026: publish final guidance\n- Q3 2026: Codes updated\n- 6 months transition period"></textarea>
+              <textarea id="s8_timeline" placeholder="Example:
+- Q2 2026: publish final guidance
+- Q3 2026: Codes updated
+- 6 months transition period"></textarea>
               <small class="hint">Quarters and months are fine.</small>
             </div>
             <div class="field">
@@ -944,7 +965,7 @@
 
     // Step 6 prompt
     out += `<h2>Step 6: international context</h2><h3>Agent prompt</h3>`;
-    out += p('You are a policy analyst. Your task is to draft the executive summary international context section as calibration relevant to the regulator’s approach.');
+    out += p("You are a policy analyst. Your task is to draft the executive summary international context section as calibration relevant to the regulator's approach.");
     out += `<p><strong>Inputs:</strong></p><ul>
       <li>External developments: ${esc(bool(data.s6.devs))}</li>
       <li>Linking sentence to local approach: ${esc(bool(data.s6.link))}</li>
