@@ -213,7 +213,6 @@
         <ul class="taskList" id="taskList">
           <li class="taskItem active" data-step="gc"><strong>Global controls</strong><small>Applies to all steps.</small></li>
           <li class="taskItem" data-step="0"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
-          <li class="taskItem" data-step="1"><strong>2. Contents skeleton</strong><small>Fixed headings and shape.</small></li>
           <li class="taskItem" data-step="2"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
           <li class="taskItem" data-step="3"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
           <li class="taskItem" data-step="4"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
@@ -221,7 +220,6 @@
           <li class="taskItem" data-step="6"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
           <li class="taskItem" data-step="7"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
           <li class="taskItem" data-step="8"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
-          <li class="taskItem" data-step="9"><strong>10. Compile and lint</strong><small>Assemble and structure-check.</small></li>
         </ul>
 
         <div class="sideBox">
@@ -305,38 +303,6 @@
               <label>Document reference / code <span class="flag">Optional</span></label>
               <input id="s1_ref" placeholder="Example: FP 1/2026" />
               <small class="hint">If you use an internal doc numbering scheme.</small>
-            </div>
-          </div>
-        </section>
-
-        <!-- Step 2 -->
-        <section class="step" data-step="1">
-          <h2>Step 2: lock the contents skeleton</h2>
-          <p class="desc">Fix the headings early so everything else snaps into place. Default is the proven five subheadings.</p>
-          <div class="metaRow">
-            <span class="role">Role: document architect</span>
-            <span class="purpose">Purpose: contents and headings</span>
-            <span>Output: contents-ready skeleton</span>
-          </div>
-          <div class="grid">
-            <div class="field" data-required="true">
-              <label>Executive summary subheadings <span class="flag mand">Mandatory</span></label>
-              <textarea id="s2_execHeads" placeholder="Default: Introduction
-Background
-International context
-Feedback summary
-Policy position and next steps"></textarea>
-              <small class="hint">Use five subheadings, one per line.</small>
-            </div>
-            <div class="field" data-required="true">
-              <label>Main body structure <span class="flag mand">Mandatory</span></label>
-              <textarea id="s2_bodyStruct" placeholder="Default: Consultation feedback and our comments, organised question-by-question across thematic headings"></textarea>
-              <small class="hint">One sentence describing how the main body is arranged.</small>
-            </div>
-            <div class="field">
-              <label>Include sections <span class="flag">Optional</span></label>
-              <textarea id="s2_includes" placeholder="Example: Respondents; Glossary; Annex: quantitative summary table"></textarea>
-              <small class="hint">Any additional standard sections you want every time.</small>
             </div>
           </div>
         </section>
@@ -575,32 +541,29 @@ Policy position and next steps"></textarea>
         </div>
       </section>
 
-        <!-- Step 10 -->
-        <section class="step" data-step="9">
-          <h2>Step 10: compile and lint</h2>
-          <p class="desc">Assemble the full paper and enforce the structure checklist.</p>
-          <div class="metaRow">
-            <span class="role">Role: compiler</span>
-            <span class="purpose">Purpose: full paper assembly</span>
-            <span>Check: enforce form controls</span>
-          </div>
-          <p class="hint">No additional inputs. The exported prompt instructs the LLM to assemble all prior outputs and correct any structural drift.</p>
-        </section>
       </section>
     </main>
 
     <footer>
-      <div class="nav">
-        <button class="secondary" id="prev">← Back</button>
-        <button class="secondary" id="next">Next →</button>
-      </div>
-      <button class="primary" id="export">Download Word prompts</button>
-      <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
-    </footer>
+  <div class="nav">
+    <button class="secondary" id="prev">← Back</button>
+    <button class="secondary" id="next">Next →</button>
   </div>
+  <button class="primary" id="export">Download Word prompts</button>
+  <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
+</footer>
+</div>
 
 <script>
 (function(){
+  const DEFAULT_EXEC_HEADS = `Introduction
+Background
+International context
+Feedback summary
+Policy position and next steps`;
+  const DEFAULT_BODY_STRUCT = 'Consultation feedback and our comments, organised question-by-question across thematic headings';
+  const DEFAULT_INCLUDE_SECTIONS = '';
+
   const root = document.documentElement;
   const themeToggle = document.getElementById('themeToggle');
   const THEME_KEY = 'fp-theme';
@@ -849,10 +812,14 @@ Policy position and next steps"></textarea>
   termContainer.appendChild(newTerm(1));
 
   function collect(){
+    const execHeads = get('s2_execHeads') || DEFAULT_EXEC_HEADS;
+    const bodyStruct = get('s2_bodyStruct') || DEFAULT_BODY_STRUCT;
+    const includes = get('s2_includes') || DEFAULT_INCLUDE_SECTIONS;
+
     const data={
       g:{regulator:get('g_regulator'),jurisdiction:get('g_jurisdiction'),allowed:get('g_allowed'),prefix:get('g_prefix')},
       s1:{title:get('s1_title'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
-      s2:{execHeads:get('s2_execHeads'),bodyStruct:get('s2_bodyStruct'),includes:get('s2_includes')},
+      s2:{execHeads,bodyStruct,includes},
       s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
       s4:{drivers:get('s4_drivers'),changed:get('s4_changed')},
       s5:{responses:get('s5_responses'),events:get('s5_events'),categories:get('s5_categories'),conf:get('s5_conf')},
@@ -982,31 +949,37 @@ Issued: [issue month year]</pre>`;
       if(t && !themeHeadings.includes(t)) themeHeadings.push(t);
     });
 
+    const execHeadingLines = (data.s2.execHeads || DEFAULT_EXEC_HEADS).split(/\n+/).map(h=>h.trim()).filter(Boolean);
+    const execHeadingBlock = execHeadingLines.length
+      ? execHeadingLines.map(h=>esc(h)).join('\n   ')
+      : esc(DEFAULT_EXEC_HEADS).replace(/\n/g,'\n   ');
+    const includeLines = (data.s2.includes || '').split(/\n+/).map(l=>l.trim()).filter(Boolean);
+    const includeBlock = includeLines.length ? includeLines.map(l=>'   '+esc(l)).join('\n') + '\n' : '';
+
     // Step 2 prompt
     out += `<h2>Step 2: contents skeleton</h2><h3>Agent prompt</h3>`;
-    out += p('Build the contents page using the fixed ordering and labels. Do not change labels or numbering.');
+    out += p('Build the contents page using the fixed ordering and labels. Defaults apply if no headings are provided by the user. Do not change labels or numbering.');
     out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Executive summary subheadings (order preserved)', execHeadingLines.join('\n'))
+      + renderIfPresent('Main body structure descriptor', data.s2.bodyStruct)
       + renderIfPresent('Thematic headings (order preserved)', themeHeadings.join('\n'))
       + renderIfPresent('Additional include sections', data.s2.includes)
       + `</ul>`;
     out += `<p><strong>Required output template:</strong></p><pre>Contents
-1. Executive summary
-   Introduction
-   Background
-   International context
-   Feedback summary
-   Policy position and next steps
-2. Consultation feedback and our comments
-   [thematic heading 1]
-   [thematic heading 2]
-   ...
-3. List of respondents
-Glossary</pre>`;
-    out += `<p><strong>Rules:</strong></p><ul>
-      <li>Preserve capitalisation exactly as shown.</li>
-      <li>List thematic headings under section 2 in the order provided; if none are provided, leave placeholders blank.</li>
-      <li>Do not add a contents label on the cover page; contents starts here.</li>
-    </ul>`;
+ 1. Executive summary
+   ${execHeadingBlock}
+ 2. Consultation feedback and our comments
+    [thematic heading 1]
+    [thematic heading 2]
+    ...
+ 3. List of respondents
+${includeBlock}Glossary</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>`
+      + `<li>Preserve capitalisation exactly as shown.</li>`
+      + `<li>List thematic headings under section 2 in the order provided; if none are provided, leave placeholders blank.</li>`
+      + `<li>Describe the main body as: ${esc(data.s2.bodyStruct || DEFAULT_BODY_STRUCT)}</li>`
+      + `<li>Do not add a contents label on the cover page; contents starts here.</li>`
+    + `</ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
     out += `<hr/>`;
 
