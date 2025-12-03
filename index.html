@@ -203,7 +203,7 @@
       </div>
       <div class="topRight">
         <button class="themeToggle" id="themeToggle"><span class="icon">🌞</span><span class="label">Light</span></button>
-        <div class="pill" id="progressPill"><span class="dot"></span><span id="progressText">Step 1 of 9</span></div>
+        <div class="pill" id="progressPill"><span class="dot"></span><span id="progressText">Global controls</span></div>
       </div>
     </header>
 
@@ -211,26 +211,58 @@
       <aside class="side">
         <h2>Steps</h2>
         <ul class="taskList" id="taskList">
-          <li class="taskItem active" data-step="0"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
-          <li class="taskItem" data-step="1"><strong>2. Contents skeleton</strong><small>Lock the headings and shape.</small></li>
+          <li class="taskItem active" data-step="gc"><strong>Global controls</strong><small>Applies to all steps.</small></li>
+          <li class="taskItem" data-step="0"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
+          <li class="taskItem" data-step="1"><strong>2. Contents skeleton</strong><small>Fixed headings and shape.</small></li>
           <li class="taskItem" data-step="2"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
           <li class="taskItem" data-step="3"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
           <li class="taskItem" data-step="4"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
-          <li class="taskItem" data-step="5"><strong>6. International context</strong><small>Calibration, not decoration.</small></li>
+          <li class="taskItem" data-step="5"><strong>6. International context</strong><small>Whitelist only.</small></li>
           <li class="taskItem" data-step="6"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
           <li class="taskItem" data-step="7"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
           <li class="taskItem" data-step="8"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
+          <li class="taskItem" data-step="9"><strong>10. Compile and lint</strong><small>Assemble and structure-check.</small></li>
         </ul>
 
         <div class="sideBox">
           <strong>Output</strong><br />
-          Download a Word <code>.doc</code> containing nine prompts, one per step, prefilled with your inputs. Paste each prompt into your LLM agent to generate the corresponding section.
+          Download a Word <code>.doc</code> containing ten prompts, one per step, prefilled with your inputs. Paste each prompt into your LLM agent to generate the corresponding section.
         </div>
       </aside>
 
       <section class="content">
+        <section class="step active" data-step="gc">
+          <h2>Global controls</h2>
+          <p class="desc">Set regulator naming controls and guardrails for every prompt.</p>
+          <div class="metaRow">
+            <span class="role">Scope: applies to all steps</span>
+            <span class="purpose">Purpose: house style controls</span>
+          </div>
+          <div class="grid">
+            <div class="field" data-required="true">
+              <label>Regulator short name <span class="flag mand">Mandatory</span></label>
+              <input id="g_regulator" value="JFSC" />
+              <small class="hint">Used verbatim in the drafting.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Jurisdiction <span class="flag mand">Mandatory</span></label>
+              <input id="g_jurisdiction" value="Jersey" />
+              <small class="hint">Used verbatim in the drafting.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Allowed institutions and jurisdictions list <span class="flag mand">Mandatory</span></label>
+              <textarea id="g_allowed" placeholder="Comma separated list">JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA</textarea>
+              <small class="hint">Only names in this list (or in user inputs) may appear in drafted text.</small>
+            </div>
+            <div class="field">
+              <label>Document series prefix for filenames <span class="flag">Optional</span></label>
+              <input id="g_prefix" placeholder="Example: FP2026_" />
+              <small class="hint">Prepends exported filenames if set.</small>
+            </div>
+          </div>
+        </section>
         <!-- Step 1 -->
-        <section class="step active" data-step="0">
+        <section class="step" data-step="0">
           <h2>Step 1: set the frame metadata</h2>
           <p class="desc">Front matter anchors. Keep it administrative and plain.</p>
           <div class="metaRow">
@@ -399,25 +431,20 @@ Policy position and next steps"></textarea>
         <!-- Step 6 -->
         <section class="step" data-step="5">
           <h2>Step 6: international context for calibration</h2>
-          <p class="desc">Keep it relevant and short. Two to four external developments, then one linking sentence.</p>
+          <p class="desc">Whitelist-only external developments. No invention, no extras.</p>
           <div class="metaRow">
             <span class="role">Role: policy analyst</span>
             <span class="purpose">Purpose: executive summary, international context</span>
-            <span>Rule: calibration only</span>
+            <span>Rule: whitelist only</span>
           </div>
           <div class="grid">
             <div class="field" data-required="true">
-              <label>External developments (2 to 4) <span class="flag mand">Mandatory</span></label>
+              <label>External developments (bullets) <span class="flag mand">Mandatory</span></label>
               <textarea id="s6_devs" placeholder="Example:
 - EU: CSRD and ESRS implementation
 - UK: FCA SDR and anti-greenwashing rule
 - US: SEC climate disclosure debates"></textarea>
-              <small class="hint">Bullets. Keep them relevant.</small>
-            </div>
-            <div class="field" data-required="true">
-              <label>Linking sentence to your approach <span class="flag mand">Mandatory</span></label>
-              <textarea id="s6_link" placeholder="Example: These developments informed our proportionate approach, aiming to align where sensible while reflecting local market size and risk profile."></textarea>
-              <small class="hint">One sentence, no advocacy.</small>
+              <small class="hint">Bullet entries only. If fewer than two, the export will instruct omission.</small>
             </div>
           </div>
         </section>
@@ -534,18 +561,30 @@ Policy position and next steps"></textarea>
             <div class="repeatBody" id="termContainer"></div>
           </div>
 
-          <div class="grid" style="margin-top:14px">
-            <div class="field" data-required="true">
-              <label>Quantification approach language <span class="flag mand">Mandatory</span></label>
-              <textarea id="s9_quant" placeholder="Default: Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority."></textarea>
-              <small class="hint">This becomes a constraint in your prompts.</small>
-            </div>
-            <div class="field" data-required="true">
-              <label>Tone and framing constraints <span class="flag mand">Mandatory</span></label>
-              <textarea id="s9_tone" placeholder="Default: factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions."></textarea>
-              <small class="hint">Baked into every agent prompt.</small>
-            </div>
+        <div class="grid" style="margin-top:14px">
+          <div class="field" data-required="true">
+            <label>Quantification approach language <span class="flag mand">Mandatory</span></label>
+            <textarea id="s9_quant" placeholder="Default: Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority."></textarea>
+            <small class="hint">This becomes a constraint in your prompts.</small>
           </div>
+          <div class="field" data-required="true">
+            <label>Tone and framing constraints <span class="flag mand">Mandatory</span></label>
+            <textarea id="s9_tone" placeholder="Default: factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions."></textarea>
+            <small class="hint">Baked into every agent prompt.</small>
+          </div>
+        </div>
+      </section>
+
+        <!-- Step 10 -->
+        <section class="step" data-step="9">
+          <h2>Step 10: compile and lint</h2>
+          <p class="desc">Assemble the full paper and enforce the structure checklist.</p>
+          <div class="metaRow">
+            <span class="role">Role: compiler</span>
+            <span class="purpose">Purpose: full paper assembly</span>
+            <span>Check: enforce form controls</span>
+          </div>
+          <p class="hint">No additional inputs. The exported prompt instructs the LLM to assemble all prior outputs and correct any structural drift.</p>
         </section>
       </section>
     </main>
@@ -556,7 +595,7 @@ Policy position and next steps"></textarea>
         <button class="secondary" id="next">Next →</button>
       </div>
       <button class="primary" id="export">Download Word prompts</button>
-      <div class="note"><strong>File:</strong> feedback_paper_agent_prompts.doc</div>
+      <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
     </footer>
   </div>
 
@@ -588,6 +627,7 @@ Policy position and next steps"></textarea>
   });
 
   const steps = Array.from(document.querySelectorAll('.step'));
+  const nonGlobalSteps = steps.filter(s=>s.dataset.step !== 'gc');
   const items = Array.from(document.querySelectorAll('.taskItem'));
   const prev = document.getElementById('prev');
   const next = document.getElementById('next');
@@ -606,8 +646,15 @@ Policy position and next steps"></textarea>
     current=n;
     prev.disabled = n===0;
     next.disabled = n===steps.length-1;
-    progressText.textContent = 'Step ' + (n+1) + ' of ' + steps.length;
-    if(n===steps.length-1) progressPill.classList.add('active'); else progressPill.classList.remove('active');
+    const step = steps[n];
+    if(step.dataset.step === 'gc'){
+      progressText.textContent = 'Global controls';
+    } else {
+      const idx = nonGlobalSteps.indexOf(step) + 1;
+      progressText.textContent = 'Step ' + idx + ' of ' + nonGlobalSteps.length;
+    }
+    const isLast = step.dataset.step !== 'gc' && nonGlobalSteps.indexOf(step) === nonGlobalSteps.length-1;
+    if(isLast) progressPill.classList.add('active'); else progressPill.classList.remove('active');
   }
 
   items.forEach((it,i)=>it.addEventListener('click',()=>show(i)));
@@ -803,12 +850,13 @@ Policy position and next steps"></textarea>
 
   function collect(){
     const data={
+      g:{regulator:get('g_regulator'),jurisdiction:get('g_jurisdiction'),allowed:get('g_allowed'),prefix:get('g_prefix')},
       s1:{title:get('s1_title'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
       s2:{execHeads:get('s2_execHeads'),bodyStruct:get('s2_bodyStruct'),includes:get('s2_includes')},
       s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
       s4:{drivers:get('s4_drivers'),changed:get('s4_changed')},
       s5:{responses:get('s5_responses'),events:get('s5_events'),categories:get('s5_categories'),conf:get('s5_conf')},
-      s6:{devs:get('s6_devs'),link:get('s6_link')},
+      s6:{devs:get('s6_devs')},
       s7:{frame:get('s7_frame'),themes:get('s7_themes'),div:get('s7_div')},
       s8:{decisions:get('s8_decisions'),route:get('s8_route'),timeline:get('s8_timeline'),changed:get('s8_changed')},
       s9:{quant:get('s9_quant'),tone:get('s9_tone')},
@@ -846,22 +894,55 @@ Policy position and next steps"></textarea>
     return data;
   }
 
-  function bool(v){ return v && v.length ? v : '(not specified)'; }
+  function renderIfPresent(label,value){
+    const v = (value||'').trim();
+    return v ? `<li>${label}: ${esc(v)}</li>` : '';
+  }
+
+  function sanitizeAllowedList(raw){
+    const base = 'JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA';
+    const source = (raw && raw.trim()) ? raw : base;
+    const seen = new Set();
+    const parts = source.split(',').map(s=>s.trim()).filter(Boolean);
+    const deduped = [];
+    parts.forEach(p=>{
+      const key = p.toLowerCase();
+      if(!seen.has(key)){
+        seen.add(key);
+        deduped.push(p);
+      }
+    });
+    return deduped;
+  }
 
   function buildDoc(data){
     const now = new Date().toLocaleString('en-GB');
 
-    const tone = esc(bool(data.s9.tone));
-    const quantRule = esc(bool(data.s9.quant));
+    const regulator = (data.g.regulator || 'JFSC').trim() || 'JFSC';
+    const jurisdiction = (data.g.jurisdiction || 'Jersey').trim() || 'Jersey';
+    const allowedList = sanitizeAllowedList(data.g.allowed);
+    const allowedListDisplay = esc(allowedList.join(', '));
+    const tone = (data.s9.tone && data.s9.tone.trim()) ? data.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
+    const quantRule = (data.s9.quant && data.s9.quant.trim()) ? data.s9.quant.trim() : 'Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority.';
 
-    function commonConstraints(){
+    const filteredQuestions = data.questions.filter(q=>Object.values(q).some(v=>(v||'').trim().length));
+    const filteredSectors = data.sectors.filter(s=>Object.values(s).some(v=>(v||'').trim().length));
+    const filteredTerms = data.terms.filter(t=>Object.values(t).some(v=>(v||'').trim().length));
+
+    function commonConstraints(extra){
       return `
         <ul>
           <li>Use British English.</li>
           <li>Professional regulatory audience.</li>
-          <li>Keep tone factual and neutral, decision-led.</li>
-          <li>Apply the tone and framing rules: ${tone}</li>
-          <li>Quantification rule: ${quantRule}</li>
+          <li>Use the regulator name exactly as: ${esc(regulator)}. Do not write "the regulator" unless quoting.</li>
+          <li>Use jurisdiction exactly as: ${esc(jurisdiction)}.</li>
+          <li>Mention only institutions and jurisdictions that appear in the allowed list (${allowedListDisplay}) or are explicitly named in the user inputs. If any input names an entity outside the allowed list, replace it with "[not included: not in allowed list]".</li>
+          <li>Apply the tone and framing rules: ${esc(tone)}</li>
+          <li>Quantification rule: ${esc(quantRule)}</li>
+          <li>Do not restate inputs.</li>
+          <li>Output only the requested section text, no preambles.</li>
+          <li>Do not start more than one sentence in a paragraph with the same first two words.</li>
+          ${extra || ''}
         </ul>`;
     }
 
@@ -871,220 +952,281 @@ Policy position and next steps"></textarea>
     let out='';
     out += `<h2>Step 1: frame metadata</h2>`;
     out += `<h3>Agent prompt</h3>`;
-    out += p('You are a senior regulatory drafter. Your task is to draft the front matter for a feedback paper responding to a regulatory consultation, using the inputs below.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Consultation title: ${esc(bool(data.s1.title))}</li>
-      <li>Consultation publication date: ${esc(bool(data.s1.pubdate))}</li>
-      <li>Consultation URL: ${esc(bool(data.s1.url))}</li>
-      <li>One sentence description of this feedback paper: ${esc(bool(data.s1.oneliner))}</li>
-      <li>Contact inbox: ${esc(bool(data.s1.inbox))}</li>
-      <li>Issue month and year: ${esc(bool(data.s1.issue))}</li>
-      <li>Document reference (if any): ${esc(bool(data.s1.ref))}</li>
-    </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>Cover page style front matter including title, issue date, contact inbox, and link back to the consultation.</li>
-      <li>One line describing what the paper reports, suitable for the first page.</li>
+    out += p('Fill the cover page and opening description using the fixed template. Do not change labels or ordering. Use only provided facts; if a required fact is missing, write Not reported.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Feedback paper title', data.s1.title)
+      + renderIfPresent('Consultation title', data.s1.title)
+      + renderIfPresent('Consultation publication date', data.s1.pubdate)
+      + renderIfPresent('Consultation URL', data.s1.url)
+      + renderIfPresent('One sentence description of this feedback paper', data.s1.oneliner)
+      + renderIfPresent('Contact inbox', data.s1.inbox)
+      + renderIfPresent('Issue month and year', data.s1.issue)
+      + renderIfPresent('Document reference (if any)', data.s1.ref)
+      + `</ul>`;
+    out += `<p><strong>Required output template:</strong></p><pre>[feedback paper title]
+
+This paper reports on responses received to our consultation on [consultation title] ([consultation url]) published on [consultation publication date].
+Further enquiries concerning the consultation can be directed to: [contact inbox]
+Issued: [issue month year]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Do not insert extra lines.</li>
+      <li>Do not add a contents label on the cover page.</li>
+      <li>Populate only the bracketed fields; write Not reported where an input is missing.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Restate your understanding of the inputs in one short sentence.</li>
-      <li>Draft front matter only. Do not draft any executive summary or body text.</li>
-    </ol><hr/>`;
+    out += `<hr/>`;
+
+    const themeHeadings = [];
+    filteredQuestions.forEach(q=>{
+      const t = (q.theme||'').trim();
+      if(t && !themeHeadings.includes(t)) themeHeadings.push(t);
+    });
 
     // Step 2 prompt
     out += `<h2>Step 2: contents skeleton</h2><h3>Agent prompt</h3>`;
-    out += p('You are a regulatory document architect. Your task is to produce a contents ready skeleton for a feedback paper, using the headings below.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Executive summary subheadings: ${esc(bool(data.s2.execHeads))}</li>
-      <li>Main body structure: ${esc(bool(data.s2.bodyStruct))}</li>
-      <li>Additional include sections: ${esc(bool(data.s2.includes))}</li>
-    </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>A short contents page list with the executive summary block, the main body block, and respondents and glossary (plus any additional include sections).</li>
+    out += p('Build the contents page using the fixed ordering and labels. Do not change labels or numbering.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Thematic headings (order preserved)', themeHeadings.join('\n'))
+      + renderIfPresent('Additional include sections', data.s2.includes)
+      + `</ul>`;
+    out += `<p><strong>Required output template:</strong></p><pre>Contents
+1. Executive summary
+   Introduction
+   Background
+   International context
+   Feedback summary
+   Policy position and next steps
+2. Consultation feedback and our comments
+   [thematic heading 1]
+   [thematic heading 2]
+   ...
+3. List of respondents
+Glossary</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Preserve capitalisation exactly as shown.</li>
+      <li>List thematic headings under section 2 in the order provided; if none are provided, leave placeholders blank.</li>
+      <li>Do not add a contents label on the cover page; contents starts here.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Provide a clean list representing a contents table. Keep it concise.</li>
-      <li>Do not draft narrative text.</li>
-    </ol><hr/>`;
+    out += `<hr/>`;
 
     // Step 3 prompt
     out += `<h2>Step 3: consultation scope recap</h2><h3>Agent prompt</h3>`;
-    out += p('You are a senior policy drafter. Your task is to draft the executive summary introduction section, restating what the consultation covered.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Key areas addressed: ${esc(bool(data.s3.areas))}</li>
-      <li>Regulated population in scope: ${esc(bool(data.s3.population))}</li>
-      <li>Number of consultation questions: ${esc(bool(data.s3.qcount))}</li>
+    out += p('Draft the Executive summary · Introduction subsection using the fixed spine. Define “CP” once here, then use “CP” thereafter.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Consultation title', data.s1.title)
+      + renderIfPresent('Key areas addressed', data.s3.areas)
+      + renderIfPresent('Regulated population in scope', data.s3.population)
+      + renderIfPresent('Number of consultation questions', data.s3.qcount)
+      + renderIfPresent('Engagement facts (to weave in bullets)', `${data.s5.responses ? 'Responses: ' + data.s5.responses + '; ' : ''}${data.s5.events ? 'Events: ' + data.s5.events + '; ' : ''}${data.s5.categories ? 'Categories: ' + data.s5.categories : ''}`)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>1. Executive summary
+Introduction
+[paragraph defining the CP and stating scope]
+› [bullet]
+› [bullet]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Bullet glyph must be exactly › for every bullet.</li>
+      <li>Use the paragraph to define the consultation once as “Consultation Paper (CP) [title]”, then refer to CP thereafter.</li>
+      <li>Populate bullets with scope and engagement facts; write Not reported if an input is missing.</li>
+      <li>Do not add extra subheadings.</li>
     </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>One short paragraph describing the consultation scope.</li>
-      <li>A bullet list of the key areas (2 to 3).</li>
-      <li>One sentence stating the number of questions and what the paper covers.</li>
-    </ul>`;
-    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Lead with scope, not conclusions.</li>
-      <li>Avoid evaluative language.</li>
-    </ol><hr/>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Define “CP” once here, then use “CP” thereafter.</li>')}`;
+    out += `<hr/>`;
 
     // Step 4 prompt
     out += `<h2>Step 4: background context</h2><h3>Agent prompt</h3>`;
-    out += p('You are the policy lead. Your task is to draft the executive summary background section, explaining why the consultation was undertaken now and how it fits existing programmes.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Internal drivers and programme references: ${esc(bool(data.s4.drivers))}</li>
-      <li>What changed since related work: ${esc(bool(data.s4.changed))}</li>
-    </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>A short background section (two to four paragraphs).</li>
-      <li>Explicitly distinguish established context from what has changed, if anything has changed.</li>
+    out += p('Draft the Executive summary · Background subsection, filling only that label with concise paragraphs.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Internal drivers and programme references', data.s4.drivers)
+      + renderIfPresent('What changed since related work', data.s4.changed)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>Background
+[paragraphs]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Keep this within the Executive summary structure; do not introduce new labels.</li>
+      <li>Use only provided facts; if nothing changed, write Not reported.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Write as why now, why this route, why this audience.</li>
-      <li>Anchor claims to the consultation purpose, avoid advocacy.</li>
-    </ol><hr/>`;
+    out += `<hr/>`;
 
     // Step 5 prompt
     out += `<h2>Step 5: engagement facts</h2><h3>Agent prompt</h3>`;
-    out += p('You are a consultation manager. Your task is to draft the engagement facts paragraph for the executive summary, and the respondents summary section for the back matter.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Number of formal responses: ${esc(bool(data.s5.responses))}</li>
-      <li>Events and participation: ${esc(bool(data.s5.events))}</li>
-      <li>Respondent categories: ${esc(bool(data.s5.categories))}</li>
-      <li>Confidentiality handling notes: ${esc(bool(data.s5.conf))}</li>
-    </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>One short engagement facts paragraph for the executive summary.</li>
-      <li>A short respondents summary section explaining respondent types at a high level, without naming entities.</li>
+    out += p('Draft the engagement facts lines to support the Executive summary · Introduction bullets and the respondents narrative.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Number of formal responses', data.s5.responses)
+      + renderIfPresent('Events and participation', data.s5.events)
+      + renderIfPresent('Respondent categories', data.s5.categories)
+      + renderIfPresent('Confidentiality handling notes', data.s5.conf)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>Introduction bullets use “›”.
+› [response count line]
+› [events or categories line]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Bullet glyph must be ›.</li>
+      <li>Use one-sentence bullets only; write Not reported if data is missing.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Treat counts as fixed facts. Do not infer.</li>
-      <li>Use neutral wording, no implied judgement of response quality.</li>
-    </ol><hr/>`;
+    out += `<hr/>`;
 
     // Step 6 prompt
     out += `<h2>Step 6: international context</h2><h3>Agent prompt</h3>`;
-    out += p("You are a policy analyst. Your task is to draft the executive summary international context section as calibration relevant to the regulator's approach.");
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>External developments: ${esc(bool(data.s6.devs))}</li>
-      <li>Linking sentence to local approach: ${esc(bool(data.s6.link))}</li>
-    </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>A short section summarising the external developments in two to four bullets.</li>
-      <li>One linking sentence explaining how these informed a proportionate approach.</li>
+    const devCount = (data.s6.devs || '').split(/\n/).map(s=>s.trim()).filter(Boolean).length;
+    out += p('Draft the Executive summary · International context subsection using only the provided external developments.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('External developments (bullets only)', data.s6.devs)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>International context
+[paragraphs or bullets]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Use only the supplied developments; do not add institutions outside the allowed list (${allowedListDisplay}).</li>
+      <li>If fewer than 2 developments are provided (${devCount}), output exactly: “International context: not included in this paper.”</li>
+      <li>If developments are provided, keep them as short statements (one per line or sentence).</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Keep it relevant and short.</li>
-      <li>Avoid broad commentary, keep it tied to consultation calibration.</li>
-    </ol><hr/>`;
+    out += `<hr/>`;
 
     // Step 7 prompt
     out += `<h2>Step 7: feedback themes</h2><h3>Agent prompt</h3>`;
-    out += p('You are a synthesis lead. Your task is to produce the executive summary feedback summary section, distilling responses into a small number of themes.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Coding frame: ${esc(bool(data.s7.frame))}</li>
-      <li>Theme candidates: ${esc(bool(data.s7.themes))}</li>
-      <li>Notable divergences: ${esc(bool(data.s7.div))}</li>
+    out += p('Draft the Executive summary · Feedback summary subsection using the fixed bullet glyph.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Coding frame', data.s7.frame)
+      + renderIfPresent('Theme candidates', data.s7.themes)
+      + renderIfPresent('Notable divergences', data.s7.div)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>Feedback summary
+› [theme bullet]
+› [theme bullet]
+…</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Use glyph › for every bullet.</li>
+      <li>Keep between four and six bullets unless fewer inputs exist; write Not reported if none.</li>
+      <li>Do not add subheadings.</li>
     </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>Four to six themes, phrased neutrally.</li>
-      <li>For each theme, one line on what respondents said, and one line on the tension or implementation choice it creates.</li>
-    </ul>`;
-    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Do not attribute to named organisations.</li>
-      <li>Keep themes consistent with the coding frame.</li>
-    </ol><hr/>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Define “CP” once in Introduction; use CP thereafter.</li>')}`;
+    out += `<hr/>`;
 
     // Step 8 prompt
     out += `<h2>Step 8: policy position and next steps</h2><h3>Agent prompt</h3>`;
-    out += p('You are a decision drafter. Your task is to draft the executive summary policy position and next steps section, setting out decisions and the implementation plan.');
-    out += `<p><strong>Inputs:</strong></p><ul>
-      <li>Decisions list: ${esc(bool(data.s8.decisions))}</li>
-      <li>What changed due to feedback: ${esc(bool(data.s8.changed))}</li>
-      <li>Delivery route: ${esc(bool(data.s8.route))}</li>
-      <li>Timeline anchors: ${esc(bool(data.s8.timeline))}</li>
+    out += p('Draft the Executive summary · Policy position and next steps subsection using the fixed paragraph-then-bullets pattern.');
+    out += `<p><strong>Inputs:</strong></p><ul>`
+      + renderIfPresent('Decisions list', data.s8.decisions)
+      + renderIfPresent('What changed due to feedback', data.s8.changed)
+      + renderIfPresent('Delivery route', data.s8.route)
+      + renderIfPresent('Timeline anchors', data.s8.timeline)
+      + `</ul>`;
+    out += `<p><strong>Required output template slice:</strong></p><pre>Policy position and next steps
+[one short paragraph]
+› [bullet]
+› [bullet]</pre>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Paragraph first, then bullets using glyph ›.</li>
+      <li>Bullets should cover what changed due to feedback and next actions with timings.</li>
+      <li>Do not add extra subheadings.</li>
     </ul>`;
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>A short section stating commitments and decisions.</li>
-      <li>A bullet list showing what changed due to feedback.</li>
-      <li>A simple timeline of next steps.</li>
-    </ul>`;
-    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>State decisions clearly, then explain changes due to feedback, then describe next actions.</li>
-      <li>Avoid overpromising, stick to concrete deliverables.</li>
-    </ol><hr/>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Commit to concrete next actions; avoid overpromising.</li>')}`;
+    out += `<hr/>`;
 
     // Step 9 prompt (includes module template + back matter)
     out += `<h2>Step 9: question modules, respondents table, glossary</h2><h3>Agent prompt</h3>`;
-    out += p('You are a senior policy drafter. Your task is to draft the main body of a feedback paper, using repeatable question modules, and then produce safe back matter sections for respondents and the glossary.');
+    out += p('Draft the main body modules, respondents section, and glossary using the fixed templates. Use only provided facts; if missing, write Not reported or omit as instructed.');
 
     out += `<p><strong>Inputs:</strong></p>`;
     out += `<ul>
-      <li>Module template: overview, industry feedback, our response, outcome.</li>
-      <li>Quantification approach: ${esc(bool(data.s9.quant))}</li>
-      <li>Tone and framing constraints: ${esc(bool(data.s9.tone))}</li>
+      <li>Quantification approach: ${esc(quantRule)}</li>
+      <li>Tone and framing constraints: ${esc(tone)}</li>
     </ul>`;
 
     out += `<p><strong>Question modules:</strong></p>`;
-    if(!data.questions.length){
-      out += p('(No question modules provided.)');
+    if(!filteredQuestions.length){
+      out += p('No question modules provided.');
     } else {
       out += '<ol>';
-      data.questions.forEach((q,i)=>{
+      filteredQuestions.forEach((q,i)=>{
         out += `<li>
-          <p><strong>Thematic heading:</strong> ${esc(bool(q.theme))}</p>
-          <p><strong>Consultation question text:</strong><br/>${esc(bool(q.qtext)).replace(/\n/g,'<br/>')}</p>
-          <p><strong>What the CP proposed:</strong><br/>${esc(bool(q.proposal)).replace(/\n/g,'<br/>')}</p>
-          <p><strong>Feedback themes and divergence:</strong><br/>${esc(bool(q.themes)).replace(/\n/g,'<br/>')}</p>
-          <p><strong>Regulator response position:</strong><br/>${esc(bool(q.response)).replace(/\n/g,'<br/>')}</p>
-          <p><strong>Outcome decision and delivery mechanism:</strong><br/>${esc(bool(q.outcome)).replace(/\n/g,'<br/>')}</p>
-          <p><strong>Quantitative results (if any):</strong><br/>${esc(bool(q.quant)).replace(/\n/g,'<br/>')}</p>
+          <p><strong>Thematic heading:</strong> ${esc((q.theme||'').trim())}</p>
+          ${renderIfPresent('Consultation question text', q.qtext)?.replace('<li','<p').replace('</li>','</p>') || ''}
+          ${renderIfPresent('What the CP proposed', q.proposal)?.replace('<li','<p').replace('</li>','</p>') || ''}
+          ${renderIfPresent('Feedback themes and divergence', q.themes)?.replace('<li','<p').replace('</li>','</p>') || ''}
+          ${renderIfPresent('Regulator response position', q.response)?.replace('<li','<p').replace('</li>','</p>') || ''}
+          ${renderIfPresent('Outcome decision and delivery mechanism', q.outcome)?.replace('<li','<p').replace('</li>','</p>') || ''}
+          ${renderIfPresent('Quantitative results (if any)', q.quant)?.replace('<li','<p').replace('</li>','</p>') || ''}
         </li>`;
       });
       out += '</ol>';
     }
 
     out += `<p><strong>Respondent counts by sector:</strong></p>`;
-    if(!data.sectors.length){
-      out += p('(No sector lines provided.)');
+    if(!filteredSectors.length){
+      out += p('Respondent breakdown: not reported in this paper.');
     } else {
       out += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
-      out += '<tr><th>Sector</th><th>Count</th><th>Notes</th></tr>';
-      data.sectors.forEach(s=>{
-        out += `<tr><td>${esc(bool(s.name))}</td><td>${esc(bool(s.count))}</td><td>${esc(bool(s.note))}</td></tr>`;
+      out += '<tr><th>Sector</th><th>No. of responses</th></tr>';
+      filteredSectors.forEach(s=>{
+        const name = (s.name||'').trim() || 'Not reported';
+        const count = (s.count||'').trim() || 'Not reported';
+        out += `<tr><td>${esc(name)}</td><td>${esc(count)}</td></tr>`;
       });
       out += '</table>';
     }
 
     out += `<p><strong>Glossary:</strong></p>`;
-    if(!data.terms.length){
-      out += p('(No glossary terms provided.)');
+    if(!filteredTerms.length){
+      out += p('Defined terms are indicated throughout this document as follows:');
+      out += p('No glossary terms provided.');
     } else {
+      out += p('Defined terms are indicated throughout this document as follows:');
       out += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
       out += '<tr><th>Term</th><th>Definition</th></tr>';
-      data.terms.forEach(t=>{
-        out += `<tr><td>${esc(bool(t.term))}</td><td>${esc(bool(t.def)).replace(/\n/g,'<br/>')}</td></tr>`;
+      filteredTerms.forEach(t=>{
+        out += `<tr><td>${esc((t.term||'').trim())}</td><td>${esc((t.def||'').trim()).replace(/\n/g,'<br/>')}</td></tr>`;
       });
       out += '</table>';
     }
 
-    out += `<p><strong>Output:</strong></p><ul>
-      <li>Draft the main body in modules grouped by thematic headings, keeping each module consistent: overview, industry feedback, our response, outcome (and quantitative results only if supported).</li>
-      <li>Draft a respondents section using the sector counts table, without naming entities.</li>
-      <li>Draft a glossary section using the terms provided.</li>
+    out += `<p><strong>Required output templates:</strong></p><ul>
+      <li>Question module spine (apply per question under its thematic heading):<pre>Q[n]. [question title]: [question text]
+Overview
+[overview paragraph(s)]
+Quantitative results
+[one line: either exact counts, or “Not reported”]
+Industry feedback
+› [bullet]
+› [bullet]
+Our response
+[paragraph(s)]
+Outcome:
+[one paragraph starting with “Outcome:”]</pre></li>
+      <li>Respondents section title must be “3. List of respondents” with table header “Sector | No. of responses”.</li>
+      <li>Glossary must start with “Defined terms are indicated throughout this document as follows:” then a Term | Definition table using only supplied terms.</li>
     </ul>`;
 
-    out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
-    out += `<p><strong>Method:</strong></p><ol>
-      <li>Group modules under the provided thematic headings.</li>
-      <li>Within modules: use neutral summaries of feedback then a clear response and outcome.</li>
-      <li>Where quantification is not supported, use consistent qualitative descriptors.</li>
-      <li>Avoid attributing quotes to named entities unless explicitly instructed.</li>
-    </ol>`;
+    out += `<p><strong>Rules:</strong></p><ul>
+      <li>Do not change labels or ordering within modules.</li>
+      <li>Industry feedback bullets must use glyph › only.</li>
+      <li>“Outcome:” must be a single paragraph starting with “Outcome:”.</li>
+      <li>Group questions under their provided thematic headings without renaming them.</li>
+      <li>Use Not reported where data is missing rather than inventing content.</li>
+    </ul>`;
+
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not invent institutions outside the allowed list.</li>')}`;
+
+    // Step 10 prompt
+    out += `<hr/><h2>Step 10: compile and lint</h2><h3>Agent prompt</h3>`;
+    out += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
+    out += `<p><strong>Structure checklist:</strong></p><ul>
+      <li>Cover page matches the fixed pattern (title, consultation line with URL and date, enquiries line, Issued line).</li>
+      <li>Contents uses the fixed ordering and naming.</li>
+      <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
+      <li>All bullets in the executive summary and Industry feedback use “›”.</li>
+      <li>Every question module includes all labels in order: Overview; Quantitative results; Industry feedback; Our response; Outcome:.</li>
+      <li>“Outcome:” exists for each module and is a single paragraph starting with “Outcome:”.</li>
+      <li>CP defined once, then CP used thereafter.</li>
+      <li>Respondents table header is exactly “Sector | No. of responses”.</li>
+      <li>Glossary includes the fixed boilerplate line and only user supplied terms.</li>
+      <li>No institutions or jurisdictions appear outside the allowed list (${allowedListDisplay}).</li>
+    </ul>`;
+    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not restate inputs; output only the full compiled paper.</li>')}`;
 
     const html = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
@@ -1106,7 +1248,7 @@ Policy position and next steps"></textarea>
 <body>
   <h1>Feedback paper workflow · agent prompts</h1>
   <p><strong>Generated on:</strong> ${esc(now)}</p>
-  <p>This file contains nine prompts, one per step, prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
+  <p>This file contains ten prompts, one per step, prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
   ${out}
 </body>
 </html>`;
@@ -1156,7 +1298,9 @@ Policy position and next steps"></textarea>
     const doc = buildDoc(data);
     const ref = (data.s1.ref || '').trim();
     const safeRef = ref ? ref.replace(/[^A-Za-z0-9_]+/g,'_') : '';
-    const name = safeRef ? `feedback_paper_agent_prompts_${safeRef}.doc` : 'feedback_paper_agent_prompts.doc';
+    const prefix = (data.g.prefix || '').trim().replace(/[^A-Za-z0-9_]+/g,'_');
+    const base = safeRef ? `feedback_paper_agent_prompts_${safeRef}` : 'feedback_paper_agent_prompts';
+    const name = `${prefix || ''}${base}.doc`;
     download(name, doc);
   });
 
