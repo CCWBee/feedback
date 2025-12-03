@@ -166,6 +166,10 @@
     .repeatItemHead small{font-size:11px;color:var(--muted)}
     .miniBtn{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer}
     .miniBtn:hover{background:var(--accentSoft);border-color:var(--accent)}
+    details{border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:var(--panelAlt)}
+    details[open]{background:var(--panel)}
+    summary.miniSummary{cursor:pointer;font-weight:650;font-size:12px;color:var(--text)}
+    summary.miniSummary::-webkit-details-marker{display:none}
 
     footer{
       padding:10px 16px 14px 16px;border-top:1px solid var(--divider);
@@ -237,25 +241,28 @@
             <span class="purpose">Purpose: house style controls</span>
           </div>
           <div class="grid">
-            <div class="field" data-required="true">
-              <label>Regulator short name <span class="flag mand">Mandatory</span></label>
-              <input id="g_regulator" value="JFSC" />
-              <small class="hint">Used verbatim in the drafting.</small>
+            <div class="field">
+              <label>Fixed regulator and jurisdiction</label>
+              <div class="pill" aria-live="polite">Regulator: JFSC · Jurisdiction: Jersey</div>
+              <small class="hint">These values are fixed to match the house style.</small>
             </div>
-            <div class="field" data-required="true">
-              <label>Jurisdiction <span class="flag mand">Mandatory</span></label>
-              <input id="g_jurisdiction" value="Jersey" />
-              <small class="hint">Used verbatim in the drafting.</small>
-            </div>
-            <div class="field" data-required="true">
-              <label>Allowed institutions and jurisdictions list <span class="flag mand">Mandatory</span></label>
-              <textarea id="g_allowed" placeholder="Comma separated list">JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA</textarea>
-              <small class="hint">Only names in this list (or in user inputs) may appear in drafted text.</small>
+            <div class="field">
+              <label>Default allowed institutions list</label>
+              <div class="pill" aria-live="polite">JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA</div>
+              <small class="hint">Applied automatically unless you override below.</small>
             </div>
             <div class="field">
               <label>Document series prefix for filenames <span class="flag">Optional</span></label>
               <input id="g_prefix" placeholder="Example: FP2026_" />
               <small class="hint">Prepends exported filenames if set.</small>
+            </div>
+            <div class="field">
+              <label>Advanced: allowed list override <span class="flag">Optional</span></label>
+              <details id="allowedOverride">
+                <summary class="miniSummary">Override default allowlist (off by default)</summary>
+                <textarea id="g_allowed" placeholder="Comma separated list"></textarea>
+                <small class="hint">Defaults to the internal allowlist above when closed. Open only if you need to add or replace entries.</small>
+              </details>
             </div>
           </div>
         </section>
@@ -568,6 +575,9 @@ Feedback summary
 Policy position and next steps`;
   const DEFAULT_BODY_STRUCT = 'Consultation feedback and our comments, organised question-by-question across thematic headings';
   const DEFAULT_INCLUDE_SECTIONS = '';
+  const DEFAULT_REGULATOR = 'JFSC';
+  const DEFAULT_JURISDICTION = 'Jersey';
+  const DEFAULT_ALLOWED_LIST = 'JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA';
 
   const root = document.documentElement;
   const themeToggle = document.getElementById('themeToggle');
@@ -600,6 +610,7 @@ Policy position and next steps`;
   const prev = document.getElementById('prev');
   const next = document.getElementById('next');
   const exportBtn = document.getElementById('export');
+  const allowedOverride = document.getElementById('allowedOverride');
   const progressText = document.getElementById('progressText');
   const progressPill = document.getElementById('progressPill');
   let current = 0;
@@ -820,9 +831,12 @@ Policy position and next steps`;
     const execHeads = get('s2_execHeads') || DEFAULT_EXEC_HEADS;
     const bodyStruct = get('s2_bodyStruct') || DEFAULT_BODY_STRUCT;
     const includes = get('s2_includes') || DEFAULT_INCLUDE_SECTIONS;
+    const allowedOverrideOpen = allowedOverride?.open;
+    const allowedRaw = allowedOverrideOpen ? get('g_allowed') : '';
+    const allowedSource = allowedOverrideOpen ? allowedRaw : DEFAULT_ALLOWED_LIST;
 
     const data={
-      g:{regulator:get('g_regulator'),jurisdiction:get('g_jurisdiction'),allowed:get('g_allowed'),prefix:get('g_prefix')},
+      g:{regulator:DEFAULT_REGULATOR,jurisdiction:DEFAULT_JURISDICTION,allowed:allowedSource,allowedOverrideOpen:!!allowedOverrideOpen,prefix:get('g_prefix')},
       s1:{feedbackTitle:get('s1_feedbackTitle'),consultationTitle:get('s1_consultationTitle'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
       s2:{execHeads,bodyStruct,includes},
       s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
@@ -872,8 +886,7 @@ Policy position and next steps`;
   }
 
   function sanitizeAllowedList(raw){
-    const base = 'JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA';
-    const source = (raw && raw.trim()) ? raw : base;
+    const source = (raw && raw.trim()) ? raw : DEFAULT_ALLOWED_LIST;
     const seen = new Set();
     const parts = source.split(',').map(s=>s.trim()).filter(Boolean);
     const deduped = [];
@@ -890,8 +903,8 @@ Policy position and next steps`;
   function buildDoc(data){
     const now = new Date().toLocaleString('en-GB');
 
-    const regulator = (data.g.regulator || 'JFSC').trim() || 'JFSC';
-    const jurisdiction = (data.g.jurisdiction || 'Jersey').trim() || 'Jersey';
+    const regulator = (data.g.regulator || DEFAULT_REGULATOR).trim() || DEFAULT_REGULATOR;
+    const jurisdiction = (data.g.jurisdiction || DEFAULT_JURISDICTION).trim() || DEFAULT_JURISDICTION;
     const allowedList = sanitizeAllowedList(data.g.allowed);
     const allowedListDisplay = esc(allowedList.join(', '));
     const tone = (data.s9.tone && data.s9.tone.trim()) ? data.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
