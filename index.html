@@ -270,9 +270,14 @@
           </div>
           <div class="grid">
             <div class="field" data-required="true">
+              <label>Feedback paper title <span class="flag mand">Mandatory</span></label>
+              <input id="s1_feedbackTitle" placeholder="Example: Feedback on CP 1/2026 Sustainable finance proposals" />
+              <small class="hint">As shown on the feedback paper cover page.</small>
+            </div>
+            <div class="field" data-required="true">
               <label>Consultation title <span class="flag mand">Mandatory</span></label>
-              <input id="s1_title" placeholder="Example: CP 1/2026 Sustainable finance proposals" />
-              <small class="hint">Use the public title as issued.</small>
+              <input id="s1_consultationTitle" placeholder="Example: CP 1/2026 Sustainable finance proposals" />
+              <small class="hint">Use the public consultation title as issued.</small>
             </div>
             <div class="field" data-required="true">
               <label>Consultation publication date <span class="flag mand">Mandatory</span></label>
@@ -818,7 +823,7 @@ Policy position and next steps`;
 
     const data={
       g:{regulator:get('g_regulator'),jurisdiction:get('g_jurisdiction'),allowed:get('g_allowed'),prefix:get('g_prefix')},
-      s1:{title:get('s1_title'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
+      s1:{feedbackTitle:get('s1_feedbackTitle'),consultationTitle:get('s1_consultationTitle'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
       s2:{execHeads,bodyStruct,includes},
       s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
       s4:{drivers:get('s4_drivers'),changed:get('s4_changed')},
@@ -921,8 +926,8 @@ Policy position and next steps`;
     out += `<h3>Agent prompt</h3>`;
     out += p('Fill the cover page and opening description using the fixed template. Do not change labels or ordering. Use only provided facts; if a required fact is missing, write Not reported.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Feedback paper title', data.s1.title)
-      + renderIfPresent('Consultation title', data.s1.title)
+      + renderIfPresent('Feedback paper title', data.s1.feedbackTitle)
+      + renderIfPresent('Consultation title', data.s1.consultationTitle)
       + renderIfPresent('Consultation publication date', data.s1.pubdate)
       + renderIfPresent('Consultation URL', data.s1.url)
       + renderIfPresent('One sentence description of this feedback paper', data.s1.oneliner)
@@ -987,7 +992,7 @@ ${includeBlock}Glossary</pre>`;
     out += `<h2>Step 3: consultation scope recap</h2><h3>Agent prompt</h3>`;
     out += p('Draft the Executive summary · Introduction subsection using the fixed spine. Define “CP” once here, then use “CP” thereafter.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Consultation title', data.s1.title)
+      + renderIfPresent('Consultation title', data.s1.consultationTitle)
       + renderIfPresent('Key areas addressed', data.s3.areas)
       + renderIfPresent('Regulated population in scope', data.s3.population)
       + renderIfPresent('Number of consultation questions', data.s3.qcount)
