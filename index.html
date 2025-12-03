@@ -141,8 +141,8 @@
     .metaRow span.role{border-color:rgba(8,125,186,.4);color:var(--accent);background:var(--accentSoft)}
     .metaRow span.purpose{border-color:rgba(252,211,77,.6);color:#b7791f;background:rgba(252,211,77,.12)}
 
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 16px}
-    .field{display:flex;flex-direction:column;gap:4px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px 18px}
+    .field{display:flex;flex-direction:column;gap:6px}
     .field label{font-size:12px;color:var(--text);display:flex;justify-content:space-between;align-items:baseline;gap:6px}
     .flag{font-size:10px;padding:1px 6px;border-radius:999px;border:1px solid rgba(148,163,184,.7);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
     .flag.mand{border-color:rgba(239,68,68,.8);color:#fecaca}
@@ -150,11 +150,12 @@
     textarea,input,select{
       border-radius:10px;border:1px solid var(--border);
       background:var(--input);color:var(--text);
-      padding:10px 11px;font-size:13px;line-height:1.4;outline:none;
-      min-height:42px;
+      padding:12px 12px;font-size:13px;line-height:1.5;outline:none;
+      min-height:48px;
       transition:border-color .12s ease,box-shadow .12s ease,background .12s ease;
     }
-    textarea{resize:vertical}
+    textarea{resize:vertical;min-height:96px}
+    .grid .field:only-child textarea{min-height:220px}
     textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 1px rgba(8,125,186,.35);background:var(--inputFocus)}
     .hint{font-size:11px;color:var(--muted)}
     .missing textarea,.missing input,.missing select{border-color:var(--bad);box-shadow:0 0 0 1px rgba(248,113,113,.5)}
