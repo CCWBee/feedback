@@ -225,7 +225,7 @@
           <li class="taskItem" data-step="7"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
           <li class="taskItem" data-step="8"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
           <li class="taskItem" data-step="9"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
-          <li class="taskItem" data-step="10"><strong>10. Compile and lint</strong><small>Runs automatically on export.</small></li>
+          <li class="taskItem" data-step="10"><strong>10. Final assembly and structure check (run last)</strong><small>Runs automatically on export.</small></li>
         </ul>
 
         <div class="sideBox">
@@ -584,8 +584,9 @@
 
       <!-- Step 10 (non-interactive) -->
       <section class="step" data-step="10">
-        <h2>Step 10: compile and lint</h2>
+        <h2>Step 10: final assembly and structure check (run last)</h2>
         <p class="desc">This step runs automatically when you download the Word prompts, compiling every section and applying the final checklist.</p>
+        <p class="desc"><strong>Run this step after completing Steps 1–9 to standardize tone and structure.</strong></p>
         <div class="metaRow">
           <span class="role">Role: export automation</span>
           <span class="purpose">Purpose: assemble and quality check</span>
@@ -1266,7 +1267,8 @@ Outcome:
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not invent institutions outside the allowed list.</li>')}`;
 
     // Step 10 prompt
-    out += `<hr/><h2>Step 10: compile and lint</h2><h3>Agent prompt</h3>`;
+    out += `<hr/><h2>Step 10: final assembly and structure check (run last)</h2><h3>Agent prompt</h3>`;
+    out += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
     out += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
     out += `<p><strong>Structure checklist:</strong></p><ul>
       <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
