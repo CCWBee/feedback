@@ -6,25 +6,25 @@
   <title>Feedback paper prompt-builder</title>
   <style>
     :root{
-      --bg:#f3f7fb;
-      --bgSoft:#e5eff7;
+      --bg:#f0f7ff;
+      --bgSoft:#e5f1fb;
       --panel:#ffffff;
       --panelAlt:#f7f9fc;
       --border:#d2dbe6;
       --text:#0f172a;
       --muted:#4b5563;
-      --accent:#087DBA;
-      --accentSoft:rgba(8,125,186,.12);
+      --accent:#0b8ce5;
+      --accentSoft:rgba(11,140,229,.18);
       --good:#3cbf84;
       --warn:#d68a00;
       --bad:#d14343;
-      --shadow:0 12px 30px rgba(8,125,186,.18);
+      --shadow:0 16px 36px rgba(11,140,229,.2);
       --input:#f6f9fd;
       --inputFocus:#ffffff;
-      --pillBg:#e9f3fb;
-      --sideBg:radial-gradient(circle at top,rgba(8,125,186,.08),transparent 55%);
-      --shellBg:linear-gradient(145deg,#ffffff,#eef4fb);
-      --shellBorder:rgba(8,29,64,.08);
+      --pillBg:#e6f2ff;
+      --sideBg:radial-gradient(circle at top,rgba(11,140,229,.16),transparent 55%);
+      --shellBg:linear-gradient(135deg,#ffffff,#eaf3ff 45%,#f6fbff);
+      --shellBorder:rgba(8,29,64,.12);
       --divider:rgba(15,23,42,.08);
       --rLg:14px;
       --rXl:18px;
@@ -38,8 +38,8 @@
       --border:#252b40;
       --text:#f5f7ff;
       --muted:#a7b0c2;
-      --accent:#1e8cc9;
-      --accentSoft:rgba(8,125,186,.18);
+      --accent:#2aa0e6;
+      --accentSoft:rgba(42,160,230,.2);
       --good:#3cbf84;
       --warn:#ffb020;
       --bad:#ff5a5a;
@@ -74,8 +74,10 @@
     .badge{
       padding:4px 10px;border-radius:999px;
       font-size:11px;letter-spacing:.05em;text-transform:uppercase;
-      background:var(--accentSoft);color:var(--accent);
-      border:1px solid rgba(8,125,186,.35)
+      background:linear-gradient(135deg,rgba(11,140,229,.14),rgba(11,140,229,.22));
+      color:#0b4f7a;
+      border:1px solid rgba(11,140,229,.35);
+      box-shadow:0 8px 16px rgba(11,140,229,.15)
     }
     .title{display:flex;flex-direction:column;gap:2px}
     .title h1{margin:0;font-size:18px;font-weight:650;letter-spacing:.01em}
@@ -83,13 +85,13 @@
     .topRight{margin-left:auto;display:flex;gap:8px;align-items:center}
     .pill{
       font-size:11px;padding:4px 8px;border-radius:999px;
-      border:1px solid var(--border);
-      color:var(--muted);background:var(--pillBg);
+      border:1px solid rgba(11,140,229,.25);
+      color:#0f4a75;background:linear-gradient(135deg,rgba(11,140,229,.08),rgba(11,140,229,.14));
       display:flex;gap:6px;align-items:center
     }
-    .pill .dot{width:6px;height:6px;border-radius:999px;background:var(--accentSoft)}
-    .pill.active{border-color:var(--accent);color:var(--accent);background:var(--accentSoft)}
-    .pill.active .dot{background:var(--accent)}
+    .pill .dot{width:6px;height:6px;border-radius:999px;background:var(--accent)}
+    .pill.active{border-color:var(--accent);color:#04365c;background:linear-gradient(135deg,var(--accentSoft),rgba(11,140,229,.28))}
+    .pill.active .dot{background:var(--panel)}
 
     .themeToggle{
       display:inline-flex;align-items:center;gap:6px;
@@ -105,7 +107,8 @@
 
     .side{
       padding:16px 14px;border-right:1px solid var(--border);
-      background:var(--sideBg)
+      background:var(--sideBg);
+      box-shadow:inset -1px 0 0 rgba(11,140,229,.12)
     }
     .side h2{margin:0 0 10px 0;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
     .taskList{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
