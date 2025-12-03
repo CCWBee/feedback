@@ -217,7 +217,7 @@
         <ul class="taskList" id="taskList">
           <li class="taskItem active" data-step="gc"><strong>Global controls</strong><small>Applies to all steps.</small></li>
           <li class="taskItem" data-step="1"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
-          <li class="taskItem" data-step="2"><strong>2. Contents skeleton</strong><small>Fixed structure (automatic).</small></li>
+          <li class="taskItem" data-step="2"><strong>2. Contents skeleton</strong><small>Editable template.</small></li>
           <li class="taskItem" data-step="3"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
           <li class="taskItem" data-step="4"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
           <li class="taskItem" data-step="5"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
@@ -225,12 +225,11 @@
           <li class="taskItem" data-step="7"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
           <li class="taskItem" data-step="8"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
           <li class="taskItem" data-step="9"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
-          <li class="taskItem" data-step="10"><strong>10. Final assembly and structure check (run last)</strong><small>Runs automatically on export.</small></li>
         </ul>
 
         <div class="sideBox">
           <strong>Output</strong><br />
-          Download a Word <code>.doc</code> containing ten prompts, one per step, prefilled with your inputs. Paste each prompt into your LLM agent to generate the corresponding section.
+          Download a Word <code>.doc</code> containing nine prompts plus an optional final assembly check. Paste each prompt into your LLM agent to generate the corresponding section.
         </div>
       </aside>
 
@@ -321,29 +320,20 @@
           </div>
         </section>
 
-        <!-- Step 2 (non-interactive) -->
+        <!-- Step 2 (editable template) -->
         <section class="step" data-step="2">
           <h2>Step 2: confirm the contents skeleton</h2>
-          <p class="desc">This step runs automatically to keep the exported prompts aligned to the fixed paper structure.</p>
+          <p class="desc">This step sets the contents template used in the prompts. You can leave the default as-is.</p>
           <div class="metaRow">
             <span class="role">Role: fixed automation</span>
             <span class="purpose">Purpose: lock the document spine</span>
           </div>
+          <p class="hint">This template controls the contents structure in the drafted paper. You can leave the default as-is.</p>
           <div class="grid">
             <div class="field">
-              <label>Executive summary headings</label>
-              <div class="pill" aria-live="polite">Introduction · Background · International context · Feedback summary · Policy position and next steps</div>
-              <small class="hint">Hard-coded to match the regulator template.</small>
-            </div>
-            <div class="field">
-              <label>Main body structure</label>
-              <div class="pill" aria-live="polite">Consultation feedback and our comments, organised question-by-question across thematic headings</div>
-              <small class="hint">Used to orient the agent responses in every step.</small>
-            </div>
-            <div class="field">
-              <label>Optional sections</label>
-              <div class="pill" aria-live="polite">Uses defaults unless you override the export later.</div>
-              <small class="hint">No inputs required. This step is informational only.</small>
+              <label>Contents template (editable)</label>
+              <textarea id="s2_template" placeholder="Contents template"></textarea>
+              <small class="hint">Edit only if you need to change the structure. Placeholders for thematic headings will auto-fill if you use the default.</small>
             </div>
           </div>
         </section>
@@ -582,41 +572,6 @@
         </div>
       </section>
 
-      <!-- Step 10 (non-interactive) -->
-      <section class="step" data-step="10">
-        <h2>Step 10: final assembly and structure check (run last)</h2>
-        <p class="desc">This step runs automatically when you download the Word prompts, compiling every section and applying the final checklist.</p>
-        <p class="desc"><strong>Run this step after completing Steps 1–9 to standardize tone and structure, or paste everything into one one-shot prompt if you prefer a manual run.</strong></p>
-        <div class="metaRow">
-          <span class="role">Role: export automation</span>
-          <span class="purpose">Purpose: assemble and quality check</span>
-          <span>Inputs: none</span>
-        </div>
-        <div class="grid">
-          <div class="field">
-            <label>What happens</label>
-            <div class="pill" aria-live="polite">Compiles Steps 1-9 and applies a lint pass before generating the prompts file.</div>
-            <small class="hint">No edits required; this is an export-only action.</small>
-          </div>
-          <div class="field">
-            <label>When it runs</label>
-            <div class="pill" aria-live="polite">Triggered automatically by the “Download Word prompts” button.</div>
-            <small class="hint">Use Back/Next to review earlier steps before exporting.</small>
-          </div>
-        </div>
-        <details open>
-          <summary class="miniSummary">Checklist applied on export</summary>
-          <ul class="hint">
-            <li>Cover page, contents order, and executive summary headings match the fixed template.</li>
-            <li>Bullets use the required glyphs and all question modules keep the labelled pattern.</li>
-            <li>Tone, capitalization, and CP usage are harmonized across the executive summary, modules, and back matter.</li>
-            <li>Outcome paragraphs start with “Outcome:” and respondents/glossary tables use the fixed headers.</li>
-            <li>Remove any institutions not on the allowlist if they slipped into earlier drafts.</li>
-            <li>Allowed institutions are enforced from the Global controls list.</li>
-          </ul>
-        </details>
-      </section>
-
       </section>
     </main>
 
@@ -625,20 +580,32 @@
     <button class="secondary" id="prev">← Back</button>
     <button class="secondary" id="next">Next →</button>
   </div>
-  <button class="primary" id="export">Download Word prompts</button>
-  <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
-</footer>
-</div>
+  <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;flex:1">
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <button class="primary" id="export">Download Word prompts</button>
+      <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
+    </div>
+    <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
+    <div class="note">Export includes: steps 1–9 plus optional final assembly prompt.</div>
+  </div>
+    </footer>
+  </div>
 
 <script>
 (function(){
-  const DEFAULT_EXEC_HEADS = `Introduction
-Background
-International context
-Feedback summary
-Policy position and next steps`;
-  const DEFAULT_BODY_STRUCT = 'Consultation feedback and our comments, organised question-by-question across thematic headings';
-  const DEFAULT_INCLUDE_SECTIONS = '';
+  const DEFAULT_CONTENTS_TEMPLATE = `Contents
+
+1. Executive summary
+   Introduction
+   Background
+   International context
+   Feedback summary
+   Policy position and next steps
+2. Consultation feedback and our comments
+   [thematic heading 1]
+   [thematic heading 2]
+3. List of respondents
+   Glossary`;
   const DEFAULT_REGULATOR = 'JFSC';
   const DEFAULT_JURISDICTION = 'Jersey';
   const DEFAULT_ALLOWED_LIST = 'JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA';
@@ -675,10 +642,22 @@ Policy position and next steps`;
   const prev = document.getElementById('prev');
   const next = document.getElementById('next');
   const exportBtn = document.getElementById('export');
+  const includeFinalCheckbox = document.getElementById('include_final');
   const allowedOverride = document.getElementById('allowedOverride');
   const progressText = document.getElementById('progressText');
   const progressPill = document.getElementById('progressPill');
+  const s2TemplateEl = document.getElementById('s2_template');
+  let s2IsDefault = true;
   let current = 0;
+
+  function seedDefaultContentsTemplate(){
+    if(!s2TemplateEl) return;
+    const hasValue = (s2TemplateEl.value || '').trim().length > 0;
+    if(!hasValue){
+      s2TemplateEl.value = DEFAULT_CONTENTS_TEMPLATE;
+      s2IsDefault = true;
+    }
+  }
 
   function show(n){
     if(n<0||n>=steps.length) return;
@@ -713,6 +692,9 @@ Policy position and next steps`;
     const el=document.getElementById(id);
     return el? (el.value||'').trim():'';
   }
+
+  s2TemplateEl?.addEventListener('input',()=>{ s2IsDefault = false; });
+  seedDefaultContentsTemplate();
 
   function esc(s){
     return (s||'')
@@ -893,9 +875,11 @@ Policy position and next steps`;
   termContainer.appendChild(newTerm(1));
 
   function collect(){
-    const execHeads = get('s2_execHeads') || DEFAULT_EXEC_HEADS;
-    const bodyStruct = get('s2_bodyStruct') || DEFAULT_BODY_STRUCT;
-    const includes = get('s2_includes') || DEFAULT_INCLUDE_SECTIONS;
+    let contentsTemplate = s2TemplateEl ? s2TemplateEl.value : '';
+    if(!contentsTemplate || !contentsTemplate.trim()){
+      contentsTemplate = DEFAULT_CONTENTS_TEMPLATE;
+      if(s2TemplateEl) s2TemplateEl.value = DEFAULT_CONTENTS_TEMPLATE;
+    }
     const allowedOverrideOpen = allowedOverride?.open;
     const allowedRaw = allowedOverrideOpen ? get('g_allowed') : '';
     const allowedSource = allowedOverrideOpen ? allowedRaw : DEFAULT_ALLOWED_LIST;
@@ -903,7 +887,7 @@ Policy position and next steps`;
     const data={
       g:{regulator:DEFAULT_REGULATOR,jurisdiction:DEFAULT_JURISDICTION,allowed:allowedSource,allowedOverrideOpen:!!allowedOverrideOpen,prefix:get('g_prefix')},
       s1:{feedbackTitle:get('s1_feedbackTitle'),consultationTitle:get('s1_consultationTitle'),pubdate:get('s1_pubdate'),url:get('s1_url'),oneliner:get('s1_oneliner'),inbox:get('s1_inbox'),issue:get('s1_issue'),ref:get('s1_ref')},
-      s2:{execHeads,bodyStruct,includes},
+      s2:{template:contentsTemplate,isDefault:s2IsDefault},
       s3:{areas:get('s3_areas'),population:get('s3_population'),qcount:get('s3_qcount')},
       s4:{drivers:get('s4_drivers'),changed:get('s4_changed')},
       s5:{responses:get('s5_responses'),events:get('s5_events'),categories:get('s5_categories'),conf:get('s5_conf')},
@@ -911,6 +895,7 @@ Policy position and next steps`;
       s7:{frame:get('s7_frame'),themes:get('s7_themes'),div:get('s7_div')},
       s8:{decisions:get('s8_decisions'),route:get('s8_route'),timeline:get('s8_timeline'),changed:get('s8_changed')},
       s9:{quant:get('s9_quant'),tone:get('s9_tone')},
+      includeFinal: includeFinalCheckbox ? !!includeFinalCheckbox.checked : true,
       questions:[],
       sectors:[],
       terms:[]
@@ -1013,12 +998,18 @@ Policy position and next steps`;
     const regulator = (sanitizedData.g.regulator || DEFAULT_REGULATOR).trim() || DEFAULT_REGULATOR;
     const jurisdiction = (sanitizedData.g.jurisdiction || DEFAULT_JURISDICTION).trim() || DEFAULT_JURISDICTION;
     const allowedListDisplay = esc(allowedList.join(', '));
+    const includeFinal = sanitizedData.includeFinal !== false;
     const tone = (sanitizedData.s9.tone && sanitizedData.s9.tone.trim()) ? sanitizedData.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
     const quantRule = (sanitizedData.s9.quant && sanitizedData.s9.quant.trim()) ? sanitizedData.s9.quant.trim() : 'Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority.';
 
     const filteredQuestions = sanitizedData.questions.filter(q=>Object.values(q).some(v=>(v||'').trim().length));
     const filteredSectors = sanitizedData.sectors.filter(s=>Object.values(s).some(v=>(v||'').trim().length));
     const filteredTerms = sanitizedData.terms.filter(t=>Object.values(t).some(v=>(v||'').trim().length));
+    const themeHeadings = [];
+    filteredQuestions.forEach(q=>{
+      const t = (q.theme||'').trim();
+      if(t && !themeHeadings.includes(t)) themeHeadings.push(t);
+    });
 
     function commonConstraints(extra){
       return `
@@ -1039,8 +1030,56 @@ Policy position and next steps`;
 
     function p(s){ return '<p>' + s + '</p>'; }
 
+    function injectThematicHeadings(template, headings, isDefault){
+      if(!isDefault) return template;
+      const lines = template.split(/\n/);
+      let replaced=false;
+      const output=[];
+      lines.forEach(line=>{
+        const trimmed=line.trim();
+        if(trimmed.toLowerCase().startsWith('[thematic heading')){
+          if(!replaced){
+            const indent = (line.match(/^\s*/) || [''])[0];
+            if(headings.length){
+              headings.forEach(h=>output.push(`${indent}${h}`));
+            } else {
+              output.push(line);
+            }
+            replaced=true;
+          }
+          return;
+        }
+        output.push(line);
+      });
+      return output.join('\n');
+    }
+
+    function buildStep10Prompt(){
+      let section = `<hr/><h2>Step 10: final assembly and structure check (run last, no user input)</h2><h3>Agent prompt</h3>`;
+      section += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
+      section += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
+      section += p('If you prefer a one-shot run, paste outputs from Steps 1–9 with this checklist and harmonize tone, capitalization, CP usage, and bullet glyphs across every section.');
+      section += `<p><strong>Structure checklist:</strong></p><ul>
+        <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
+        <li>Contents uses the fixed ordering and naming.</li>
+        <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
+        <li>All bullets in the executive summary and Industry feedback use “›”.</li>
+        <li>Tone, capitalization, and CP usage are harmonized across all sections, including back matter.</li>
+        <li>Every question module includes all labels in order: Overview; Quantitative results; Industry feedback; Our response; Outcome:.</li>
+        <li>“Outcome:” exists for each module and is a single paragraph starting with “Outcome:”.</li>
+        <li>CP defined once, then CP used thereafter.</li>
+        <li>Respondents table header is exactly “Sector | No. of responses”.</li>
+        <li>Glossary includes the fixed boilerplate line and only user supplied terms.</li>
+        <li>Delete any non-allowlisted institutions that slipped through from earlier drafts.</li>
+        <li>No institutions or jurisdictions appear outside the allowed list (${allowedListDisplay}).</li>
+      </ul>`;
+      section += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not restate inputs; output only the full compiled paper.</li>')}`;
+      return section;
+    }
+
     // Step 1 prompt
     let out='';
+    const exportOnlySections = [];
     out += `<h2>Step 1: frame metadata</h2>`;
     out += `<h3>Agent prompt</h3>`;
     out += p('Fill the cover page and opening description using the fixed template. Do not change labels or ordering. Use only provided facts; if a required fact is missing, write Not reported.');
@@ -1069,41 +1108,23 @@ Issued: [issue month year]</pre>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
     out += `<hr/>`;
 
-    const themeHeadings = [];
-    filteredQuestions.forEach(q=>{
-      const t = (q.theme||'').trim();
-      if(t && !themeHeadings.includes(t)) themeHeadings.push(t);
-    });
-
-    const execHeadingLines = (sanitizedData.s2.execHeads || DEFAULT_EXEC_HEADS).split(/\n+/).map(h=>h.trim()).filter(Boolean);
-    const execHeadingBlock = execHeadingLines.length
-      ? execHeadingLines.map(h=>esc(h)).join('\n   ')
-      : esc(DEFAULT_EXEC_HEADS).replace(/\n/g,'\n   ');
-    const includeLines = (sanitizedData.s2.includes || '').split(/\n+/).map(l=>l.trim()).filter(Boolean);
-    const includeBlock = includeLines.length ? includeLines.map(l=>'   '+esc(l)).join('\n') + '\n' : '';
+    const s2Data = sanitizedData.s2 || {};
+    const contentsTemplateRaw = (s2Data.template || '').trim();
+    const isDefaultTemplate = s2Data.isDefault !== false;
+    const contentsTemplate = contentsTemplateRaw || DEFAULT_CONTENTS_TEMPLATE;
+    const contentsTemplateForOutput = injectThematicHeadings(contentsTemplate, themeHeadings, isDefaultTemplate);
 
     // Step 2 prompt
     out += `<h2>Step 2: contents skeleton</h2><h3>Agent prompt</h3>`;
-    out += p('Build the contents page using the fixed ordering and labels. Defaults apply if no headings are provided by the user. Do not change labels or numbering.');
+    out += p('Use this contents template to structure the drafted paper. Do not change labels or numbering.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Executive summary subheadings (order preserved)', execHeadingLines.join('\n'))
-      + renderIfPresent('Main body structure descriptor', sanitizedData.s2.bodyStruct)
+      + renderIfPresent('Contents template', contentsTemplate)
       + renderIfPresent('Thematic headings (order preserved)', themeHeadings.join('\n'))
-      + renderIfPresent('Additional include sections', sanitizedData.s2.includes)
       + `</ul>`;
-    out += `<p><strong>Required output template:</strong></p><pre>Contents
- 1. Executive summary
-   ${execHeadingBlock}
- 2. Consultation feedback and our comments
-    [thematic heading 1]
-    [thematic heading 2]
-    ...
- 3. List of respondents
-${includeBlock}Glossary</pre>`;
+    out += `<p><strong>Required output template:</strong></p><pre>${esc(contentsTemplateForOutput)}</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>`
-      + `<li>Preserve capitalisation exactly as shown.</li>`
-      + `<li>List thematic headings under section 2 in the order provided; if none are provided, leave placeholders blank.</li>`
-      + `<li>Describe the main body as: ${esc(sanitizedData.s2.bodyStruct || DEFAULT_BODY_STRUCT)}</li>`
+      + `<li>Preserve capitalisation and numbering exactly as shown.</li>`
+      + `<li>List thematic headings under section 2 in the order provided${(isDefaultTemplate && themeHeadings.length) ? ' (pre-inserted below)' : ''}.</li>`
       + `<li>Do not add a contents label on the cover page; contents starts here.</li>`
     + `</ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
@@ -1310,27 +1331,13 @@ Outcome:
 
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not invent institutions outside the allowed list.</li>')}`;
 
-    // Step 10 prompt
-    out += `<hr/><h2>Step 10: final assembly and structure check (run last)</h2><h3>Agent prompt</h3>`;
-    out += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
-    out += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
-    out += p('If you prefer a one-shot run, paste outputs from Steps 1–9 with this checklist and harmonize tone, capitalization, CP usage, and bullet glyphs across every section.');
-    out += `<p><strong>Structure checklist:</strong></p><ul>
-      <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
-      <li>Contents uses the fixed ordering and naming.</li>
-      <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
-      <li>All bullets in the executive summary and Industry feedback use “›”.</li>
-      <li>Tone, capitalization, and CP usage are harmonized across all sections, including back matter.</li>
-      <li>Every question module includes all labels in order: Overview; Quantitative results; Industry feedback; Our response; Outcome:.</li>
-      <li>“Outcome:” exists for each module and is a single paragraph starting with “Outcome:”.</li>
-      <li>CP defined once, then CP used thereafter.</li>
-      <li>Respondents table header is exactly “Sector | No. of responses”.</li>
-      <li>Glossary includes the fixed boilerplate line and only user supplied terms.</li>
-      <li>Delete any non-allowlisted institutions that slipped through from earlier drafts.</li>
-      <li>No institutions or jurisdictions appear outside the allowed list (${allowedListDisplay}).</li>
-    </ul>`;
-    out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not restate inputs; output only the full compiled paper.</li>')}`;
+    if(includeFinal){
+      exportOnlySections.push(buildStep10Prompt());
+    }
 
+    exportOnlySections.forEach(section=>{ out += section; });
+
+    const includedStepCount = 9 + (includeFinal ? 1 : 0);
     const html = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
@@ -1351,7 +1358,7 @@ Outcome:
 <body>
   <h1>Feedback paper workflow · agent prompts</h1>
   <p><strong>Generated on:</strong> ${esc(now)}</p>
-  <p>This file contains ten prompts, one per step, prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
+  <p>This file contains ${includedStepCount} prompt${includedStepCount === 1 ? '' : 's'} (Steps 1–9 plus optional final assembly), prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
   ${out}
 </body>
 </html>`;
