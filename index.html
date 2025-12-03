@@ -235,7 +235,7 @@
 
         <div class="sideBox">
           <strong>Output</strong><br />
-          Download a Word <code>.doc</code> containing nine prompts plus an optional final assembly check. Paste each prompt into your LLM agent to generate the corresponding section.
+          Download a Word <code>.doc</code> containing ten prompts including the final assembly check. Paste each prompt into your LLM agent to generate the corresponding section.
         </div>
       </aside>
 
@@ -589,11 +589,9 @@
         </div>
         <div class="footerActions">
           <button class="primary" id="export">Download Word prompts</button>
-          <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
         </div>
       </div>
       <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
-      <div class="note">Export includes: steps 1–9 plus optional final assembly prompt.</div>
     </footer>
   </div>
 
@@ -648,7 +646,6 @@
   const prev = document.getElementById('prev');
   const next = document.getElementById('next');
   const exportBtn = document.getElementById('export');
-  const includeFinalCheckbox = document.getElementById('include_final');
   const allowedOverride = document.getElementById('allowedOverride');
   const progressText = document.getElementById('progressText');
   const progressPill = document.getElementById('progressPill');
@@ -901,7 +898,6 @@
       s7:{frame:get('s7_frame'),themes:get('s7_themes'),div:get('s7_div')},
       s8:{decisions:get('s8_decisions'),route:get('s8_route'),timeline:get('s8_timeline'),changed:get('s8_changed')},
       s9:{quant:get('s9_quant'),tone:get('s9_tone')},
-      includeFinal: includeFinalCheckbox ? !!includeFinalCheckbox.checked : true,
       questions:[],
       sectors:[],
       terms:[]
@@ -1004,7 +1000,6 @@
     const regulator = (sanitizedData.g.regulator || DEFAULT_REGULATOR).trim() || DEFAULT_REGULATOR;
     const jurisdiction = (sanitizedData.g.jurisdiction || DEFAULT_JURISDICTION).trim() || DEFAULT_JURISDICTION;
     const allowedListDisplay = esc(allowedList.join(', '));
-    const includeFinal = sanitizedData.includeFinal !== false;
     const tone = (sanitizedData.s9.tone && sanitizedData.s9.tone.trim()) ? sanitizedData.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
     const quantRule = (sanitizedData.s9.quant && sanitizedData.s9.quant.trim()) ? sanitizedData.s9.quant.trim() : 'Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority.';
 
@@ -1337,13 +1332,11 @@ Outcome:
 
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not invent institutions outside the allowed list.</li>')}`;
 
-    if(includeFinal){
-      exportOnlySections.push(buildStep10Prompt());
-    }
+    exportOnlySections.push(buildStep10Prompt());
 
     exportOnlySections.forEach(section=>{ out += section; });
 
-    const includedStepCount = 9 + (includeFinal ? 1 : 0);
+    const includedStepCount = 9 + exportOnlySections.length;
     const html = `
 <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
 <head>
@@ -1364,7 +1357,7 @@ Outcome:
 <body>
   <h1>Feedback paper workflow · agent prompts</h1>
   <p><strong>Generated on:</strong> ${esc(now)}</p>
-  <p>This file contains ${includedStepCount} prompt${includedStepCount === 1 ? '' : 's'} (Steps 1–9 plus optional final assembly), prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
+  <p>This file contains ${includedStepCount} prompt${includedStepCount === 1 ? '' : 's'} (Steps 1–10 including the final assembly check), prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
   ${out}
 </body>
 </html>`;
