@@ -933,10 +933,12 @@ Policy position and next steps`;
       + renderIfPresent('One sentence description of this feedback paper', data.s1.oneliner)
       + renderIfPresent('Contact inbox', data.s1.inbox)
       + renderIfPresent('Issue month and year', data.s1.issue)
-      + renderIfPresent('Document reference (if any)', data.s1.ref)
+      + renderIfPresent('Document reference / code', data.s1.ref)
       + `</ul>`;
     out += `<p><strong>Required output template:</strong></p><pre>[feedback paper title]
 
+[one sentence description of this feedback paper]
+Document reference: [document reference / code]
 This paper reports on responses received to our consultation on [consultation title] ([consultation url]) published on [consultation publication date].
 Further enquiries concerning the consultation can be directed to: [contact inbox]
 Issued: [issue month year]</pre>`;
@@ -1193,7 +1195,7 @@ Outcome:
     out += `<hr/><h2>Step 10: compile and lint</h2><h3>Agent prompt</h3>`;
     out += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
     out += `<p><strong>Structure checklist:</strong></p><ul>
-      <li>Cover page matches the fixed pattern (title, consultation line with URL and date, enquiries line, Issued line).</li>
+      <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
       <li>Contents uses the fixed ordering and naming.</li>
       <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
       <li>All bullets in the executive summary and Industry feedback use “›”.</li>
