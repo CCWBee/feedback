@@ -445,8 +445,8 @@
             <span>Rule: whitelist only</span>
           </div>
           <div class="grid">
-            <div class="field" data-required="true">
-              <label>External developments (bullets) <span class="flag mand">Mandatory</span></label>
+            <div class="field">
+              <label>External developments (bullets) <span class="flag">Optional</span></label>
               <textarea id="s6_devs" placeholder="Example:
 - EU: CSRD and ESRS implementation
 - UK: FCA SDR and anti-greenwashing rule
@@ -1331,6 +1331,15 @@ Outcome:
     function validateRepeater(container){
       let ok2=true;
       Array.from(container.querySelectorAll('.repeatItem')).forEach(item=>{
+        const inputs = Array.from(item.querySelectorAll('textarea,input,select'));
+        const hasAny = inputs.some(input => input.value && input.value.trim().length);
+
+        // If the repeater item is completely empty, treat it as optional and clear any missing markers.
+        if(!hasAny){
+          Array.from(item.querySelectorAll('.field[data-required="true"]')).forEach(f=>f.classList.remove('missing'));
+          return;
+        }
+
         Array.from(item.querySelectorAll('.field[data-required="true"]')).forEach(f=>{
           const input=f.querySelector('textarea,input,select');
           const has=input && input.value && input.value.trim().length;
