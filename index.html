@@ -224,7 +224,7 @@
       </div>
       <div class="topRight">
         <button class="themeToggle" id="themeToggle"><span class="icon">🌞</span><span class="label">Light</span></button>
-        <div class="pill" id="progressPill"><span class="dot"></span><span id="progressText">Global controls</span></div>
+        <div class="pill" id="progressPill"><span class="dot"></span><span id="progressText">Step 1 of 9</span></div>
       </div>
     </header>
 
@@ -232,8 +232,7 @@
       <aside class="side">
         <h2>Steps</h2>
         <ul class="taskList" id="taskList">
-          <li class="taskItem active" data-step="gc"><strong>Global controls</strong><small>Applies to all steps.</small></li>
-          <li class="taskItem" data-step="1"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
+          <li class="taskItem active" data-step="1"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
           <li class="taskItem" data-step="2"><strong>2. Contents skeleton</strong><small>Editable template.</small></li>
           <li class="taskItem" data-step="3"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
           <li class="taskItem" data-step="4"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
@@ -242,6 +241,7 @@
           <li class="taskItem" data-step="7"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
           <li class="taskItem" data-step="8"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
           <li class="taskItem" data-step="9"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
+          <li class="taskItem" data-step="gc"><strong>Optional global controls</strong><small>Advanced overrides only.</small></li>
         </ul>
 
         <div class="sideBox">
@@ -251,41 +251,8 @@
       </aside>
 
       <section class="content">
-        <section class="step active" data-step="gc">
-          <h2>Global controls</h2>
-          <p class="desc">Set regulator naming controls and guardrails for every prompt.</p>
-          <div class="metaRow">
-            <span class="role">Scope: applies to all steps</span>
-            <span class="purpose">Purpose: house style controls</span>
-          </div>
-          <div class="grid">
-            <div class="field">
-              <label>Fixed regulator and jurisdiction</label>
-              <div class="pill" aria-live="polite">Regulator: JFSC · Jurisdiction: Jersey</div>
-              <small class="hint">These values are fixed to match the house style.</small>
-            </div>
-            <div class="field">
-              <label>Default allowed institutions list</label>
-              <div class="pill" aria-live="polite">JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA</div>
-              <small class="hint">Applied automatically unless you override below.</small>
-            </div>
-            <div class="field">
-              <label>Document series prefix for filenames <span class="flag">Optional</span></label>
-              <input id="g_prefix" placeholder="Example: FP2026_" />
-              <small class="hint">Prepends exported filenames if set.</small>
-            </div>
-            <div class="field">
-              <label>Advanced: allowed list override <span class="flag">Optional</span></label>
-              <details id="allowedOverride">
-                <summary class="miniSummary">Override default allowlist (off by default)</summary>
-                <textarea id="g_allowed" placeholder="Comma separated list"></textarea>
-                <small class="hint">Defaults to the internal allowlist above when closed. Open only if you need to add or replace entries.</small>
-              </details>
-            </div>
-          </div>
-        </section>
         <!-- Step 1 -->
-        <section class="step" data-step="1">
+        <section class="step active" data-step="1">
           <h2>Step 1: set the frame metadata</h2>
           <p class="desc">Front matter anchors. Keep it administrative and plain.</p>
           <div class="metaRow">
@@ -333,6 +300,11 @@
               <label>Document reference / code <span class="flag">Optional</span></label>
               <input id="s1_ref" placeholder="Example: FP 1/2026" />
               <small class="hint">If you use an internal doc numbering scheme.</small>
+            </div>
+            <div class="field">
+              <label>Document series prefix for filenames <span class="flag">Optional</span></label>
+              <input id="g_prefix" placeholder="Example: FP2026_" />
+              <small class="hint">Prepends exported filenames if set.</small>
             </div>
           </div>
         </section>
@@ -575,19 +547,48 @@
             <div class="repeatBody" id="termContainer"></div>
           </div>
 
-        <div class="grid" style="margin-top:14px">
-          <div class="field" data-required="true">
-            <label>Quantification approach language <span class="flag mand">Mandatory</span></label>
-            <textarea id="s9_quant" placeholder="Default: Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority."></textarea>
-            <small class="hint">This becomes a constraint in your prompts.</small>
+          <div class="grid" style="margin-top:14px">
+            <div class="field" data-required="true">
+              <label>Quantification approach language <span class="flag mand">Mandatory</span></label>
+              <textarea id="s9_quant" placeholder="Default: Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority."></textarea>
+              <small class="hint">This becomes a constraint in your prompts.</small>
+            </div>
+            <div class="field" data-required="true">
+              <label>Tone and framing constraints <span class="flag mand">Mandatory</span></label>
+              <textarea id="s9_tone" placeholder="Default: factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions."></textarea>
+              <small class="hint">Baked into every agent prompt.</small>
+            </div>
           </div>
-          <div class="field" data-required="true">
-            <label>Tone and framing constraints <span class="flag mand">Mandatory</span></label>
-            <textarea id="s9_tone" placeholder="Default: factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions."></textarea>
-            <small class="hint">Baked into every agent prompt.</small>
+        </section>
+
+        <section class="step" data-step="gc">
+          <h2>Optional global controls</h2>
+          <p class="desc">Use only if you need to override the fixed regulator allowlist across all prompts.</p>
+          <div class="metaRow">
+            <span class="role">Scope: applies to all steps</span>
+            <span class="purpose">Purpose: advanced guardrails</span>
           </div>
-        </div>
-      </section>
+          <div class="grid">
+            <div class="field">
+              <label>Fixed regulator and jurisdiction</label>
+              <div class="pill" aria-live="polite">Regulator: JFSC · Jurisdiction: Jersey</div>
+              <small class="hint">Locked to match the house style.</small>
+            </div>
+            <div class="field">
+              <label>Default allowed institutions list</label>
+              <div class="pill" aria-live="polite">JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA</div>
+              <small class="hint">Stays in force unless you open the override below.</small>
+            </div>
+            <div class="field">
+              <label>Advanced: allowed list override <span class="flag">Optional</span></label>
+              <details id="allowedOverride">
+                <summary class="miniSummary">Override default allowlist (off by default)</summary>
+                <textarea id="g_allowed" placeholder="Comma separated list"></textarea>
+                <small class="hint">Defaults to the internal allowlist above when closed. Open only if you need to add or replace entries.</small>
+              </details>
+            </div>
+          </div>
+        </section>
 
       </section>
     </main>
@@ -685,13 +686,14 @@
     next.disabled = n===steps.length-1;
     const step = steps[n];
     if(step.dataset.step === 'gc'){
-      progressText.textContent = 'Global controls';
+      progressText.textContent = 'Optional global controls';
     } else {
       const idx = nonGlobalSteps.indexOf(step) + 1;
       progressText.textContent = 'Step ' + idx + ' of ' + nonGlobalSteps.length;
     }
-    const isLast = step.dataset.step !== 'gc' && nonGlobalSteps.indexOf(step) === nonGlobalSteps.length-1;
-    if(isLast) progressPill.classList.add('active'); else progressPill.classList.remove('active');
+    const lastNonGlobal = nonGlobalSteps[nonGlobalSteps.length-1];
+    const pastCoreWork = step === lastNonGlobal || step.dataset.step === 'gc';
+    if(pastCoreWork) progressPill.classList.add('active'); else progressPill.classList.remove('active');
   }
 
   items.forEach((it,i)=>it.addEventListener('click',()=>show(i)));
