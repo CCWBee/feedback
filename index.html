@@ -216,14 +216,16 @@
         <h2>Steps</h2>
         <ul class="taskList" id="taskList">
           <li class="taskItem active" data-step="gc"><strong>Global controls</strong><small>Applies to all steps.</small></li>
-          <li class="taskItem" data-step="0"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
-          <li class="taskItem" data-step="2"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
-          <li class="taskItem" data-step="3"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
-          <li class="taskItem" data-step="4"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
-          <li class="taskItem" data-step="5"><strong>6. International context</strong><small>Whitelist only.</small></li>
-          <li class="taskItem" data-step="6"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
-          <li class="taskItem" data-step="7"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
-          <li class="taskItem" data-step="8"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
+          <li class="taskItem" data-step="1"><strong>1. Frame metadata</strong><small>Front matter and anchors.</small></li>
+          <li class="taskItem" data-step="2"><strong>2. Contents skeleton</strong><small>Fixed structure (automatic).</small></li>
+          <li class="taskItem" data-step="3"><strong>3. Consultation scope recap</strong><small>What was covered, tightly.</small></li>
+          <li class="taskItem" data-step="4"><strong>4. Background context</strong><small>Why now, why this route.</small></li>
+          <li class="taskItem" data-step="5"><strong>5. Engagement facts</strong><small>Responses and activity stats.</small></li>
+          <li class="taskItem" data-step="6"><strong>6. International context</strong><small>Whitelist only.</small></li>
+          <li class="taskItem" data-step="7"><strong>7. Feedback themes</strong><small>Theme distillation.</small></li>
+          <li class="taskItem" data-step="8"><strong>8. Policy position & next steps</strong><small>Decisions and timeline.</small></li>
+          <li class="taskItem" data-step="9"><strong>9. Question modules, respondents, glossary</strong><small>The engine and back matter.</small></li>
+          <li class="taskItem" data-step="10"><strong>10. Compile and lint</strong><small>Runs automatically on export.</small></li>
         </ul>
 
         <div class="sideBox">
@@ -267,7 +269,7 @@
           </div>
         </section>
         <!-- Step 1 -->
-        <section class="step" data-step="0">
+        <section class="step" data-step="1">
           <h2>Step 1: set the frame metadata</h2>
           <p class="desc">Front matter anchors. Keep it administrative and plain.</p>
           <div class="metaRow">
@@ -319,8 +321,35 @@
           </div>
         </section>
 
-        <!-- Step 3 -->
+        <!-- Step 2 (non-interactive) -->
         <section class="step" data-step="2">
+          <h2>Step 2: confirm the contents skeleton</h2>
+          <p class="desc">This step runs automatically to keep the exported prompts aligned to the fixed paper structure.</p>
+          <div class="metaRow">
+            <span class="role">Role: fixed automation</span>
+            <span class="purpose">Purpose: lock the document spine</span>
+          </div>
+          <div class="grid">
+            <div class="field">
+              <label>Executive summary headings</label>
+              <div class="pill" aria-live="polite">Introduction · Background · International context · Feedback summary · Policy position and next steps</div>
+              <small class="hint">Hard-coded to match the regulator template.</small>
+            </div>
+            <div class="field">
+              <label>Main body structure</label>
+              <div class="pill" aria-live="polite">Consultation feedback and our comments, organised question-by-question across thematic headings</div>
+              <small class="hint">Used to orient the agent responses in every step.</small>
+            </div>
+            <div class="field">
+              <label>Optional sections</label>
+              <div class="pill" aria-live="polite">Uses defaults unless you override the export later.</div>
+              <small class="hint">No inputs required. This step is informational only.</small>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 3 -->
+        <section class="step" data-step="3">
           <h2>Step 3: restate what the consultation covered</h2>
           <p class="desc">Lead with scope, not conclusions. Two or three key areas is enough.</p>
           <div class="metaRow">
@@ -351,7 +380,7 @@
         </section>
 
         <!-- Step 4 -->
-        <section class="step" data-step="3">
+        <section class="step" data-step="4">
           <h2>Step 4: set out policy and programme context</h2>
           <p class="desc">Write background as why now, why this route, why this audience. Avoid advocacy.</p>
           <div class="metaRow">
@@ -374,7 +403,7 @@
         </section>
 
         <!-- Step 5 -->
-        <section class="step" data-step="4">
+        <section class="step" data-step="5">
           <h2>Step 5: capture engagement facts</h2>
           <p class="desc">Treat these as audit facts, one pass. Keep them consistent across the document.</p>
           <div class="metaRow">
@@ -407,7 +436,7 @@
         </section>
 
         <!-- Step 6 -->
-        <section class="step" data-step="5">
+        <section class="step" data-step="6">
           <h2>Step 6: international context for calibration</h2>
           <p class="desc">Whitelist-only external developments. No invention, no extras.</p>
           <div class="metaRow">
@@ -428,7 +457,7 @@
         </section>
 
         <!-- Step 7 -->
-        <section class="step" data-step="6">
+        <section class="step" data-step="7">
           <h2>Step 7: distil feedback themes</h2>
           <p class="desc">Four to six themes, phrased neutrally. Each theme should include what was said and the tension it creates.</p>
           <div class="metaRow">
@@ -461,7 +490,7 @@
         </section>
 
         <!-- Step 8 -->
-        <section class="step" data-step="7">
+        <section class="step" data-step="8">
           <h2>Step 8: policy position and next steps</h2>
           <p class="desc">State decisions clearly, then what changed due to feedback, then what happens next. Include timeline anchors.</p>
           <div class="metaRow">
@@ -500,7 +529,7 @@
         </section>
 
         <!-- Step 9 -->
-        <section class="step" data-step="8">
+        <section class="step" data-step="9">
           <h2>Step 9: build question modules, respondents table, glossary</h2>
           <p class="desc">Create repeatable question modules, then safe respondent counts by sector, then a glossary of defined terms.</p>
           <div class="metaRow">
@@ -551,6 +580,38 @@
             <small class="hint">Baked into every agent prompt.</small>
           </div>
         </div>
+      </section>
+
+      <!-- Step 10 (non-interactive) -->
+      <section class="step" data-step="10">
+        <h2>Step 10: compile and lint</h2>
+        <p class="desc">This step runs automatically when you download the Word prompts, compiling every section and applying the final checklist.</p>
+        <div class="metaRow">
+          <span class="role">Role: export automation</span>
+          <span class="purpose">Purpose: assemble and quality check</span>
+          <span>Inputs: none</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label>What happens</label>
+            <div class="pill" aria-live="polite">Compiles Steps 1-9 and applies a lint pass before generating the prompts file.</div>
+            <small class="hint">No edits required; this is an export-only action.</small>
+          </div>
+          <div class="field">
+            <label>When it runs</label>
+            <div class="pill" aria-live="polite">Triggered automatically by the “Download Word prompts” button.</div>
+            <small class="hint">Use Back/Next to review earlier steps before exporting.</small>
+          </div>
+        </div>
+        <details open>
+          <summary class="miniSummary">Checklist applied on export</summary>
+          <ul class="hint">
+            <li>Cover page, contents order, and executive summary headings match the fixed template.</li>
+            <li>Bullets use the required glyphs and all question modules keep the labelled pattern.</li>
+            <li>Outcome paragraphs start with “Outcome:” and respondents/glossary tables use the fixed headers.</li>
+            <li>Allowed institutions are enforced from the Global controls list.</li>
+          </ul>
+        </details>
       </section>
 
       </section>
