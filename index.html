@@ -176,9 +176,11 @@
 
     footer{
       padding:10px 16px 14px 16px;border-top:1px solid var(--divider);
-      display:flex;gap:10px;align-items:center
+      display:flex;flex-direction:column;gap:10px
     }
     .nav{display:flex;gap:8px}
+    .footerRow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+    .footerActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     button{
       border-radius:999px;border:1px solid transparent;
       font-size:13px;padding:7px 14px;cursor:pointer;
@@ -579,18 +581,18 @@
     </main>
 
     <footer>
-  <div class="nav">
-    <button class="secondary" id="prev">← Back</button>
-    <button class="secondary" id="next">Next →</button>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;flex:1">
-    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-      <button class="primary" id="export">Download Word prompts</button>
-      <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
-    </div>
-    <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
-    <div class="note">Export includes: steps 1–9 plus optional final assembly prompt.</div>
-  </div>
+      <div class="footerRow">
+        <div class="nav">
+          <button class="secondary" id="prev">← Back</button>
+          <button class="secondary" id="next">Next →</button>
+        </div>
+        <div class="footerActions">
+          <button class="primary" id="export">Download Word prompts</button>
+          <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
+        </div>
+      </div>
+      <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
+      <div class="note">Export includes: steps 1–9 plus optional final assembly prompt.</div>
     </footer>
   </div>
 
