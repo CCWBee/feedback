@@ -610,6 +610,7 @@
             <li>Cover page, contents order, and executive summary headings match the fixed template.</li>
             <li>Bullets use the required glyphs and all question modules keep the labelled pattern.</li>
             <li>Outcome paragraphs start with “Outcome:” and respondents/glossary tables use the fixed headers.</li>
+            <li>Remove any institutions not on the allowlist if they slipped into earlier drafts.</li>
             <li>Allowed institutions are enforced from the Global controls list.</li>
           </ul>
         </details>
@@ -640,6 +641,7 @@ Policy position and next steps`;
   const DEFAULT_REGULATOR = 'JFSC';
   const DEFAULT_JURISDICTION = 'Jersey';
   const DEFAULT_ALLOWED_LIST = 'JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA';
+  const DISALLOWED_TOKEN = '[not included: not in allowed list]';
 
   const root = document.documentElement;
   const themeToggle = document.getElementById('themeToggle');
@@ -962,19 +964,60 @@ Policy position and next steps`;
     return deduped;
   }
 
+  function sanitizeCollectedData(rawData, allowedList){
+    const allowedSource = Array.isArray(allowedList) ? allowedList : sanitizeAllowedList(allowedList);
+    const allowedNormalized = allowedSource.map(s=>s.toLowerCase());
+    const allowedSet = new Set(allowedNormalized);
+    const entityKeywords = ['authority','commission','government','state','states','council','board','bank','fund','union','agency','office','department','ministry','organisation','organization','court','committee','jurisdiction','regulator'];
+    const entityPattern = /\b[A-Z][A-Za-z&.'-]+(?:\s+(?:of|and|the)?\s*[A-Z][A-Za-z&.'-]+){0,4}\b/g;
+
+    function isAllowedEntity(candidate){
+      const normalized = candidate.trim().toLowerCase();
+      return allowedNormalized.some(entry => normalized === entry || normalized.includes(entry) || entry.includes(normalized));
+    }
+
+    function scrubString(value){
+      const trimmed = (value || '').trim();
+      return trimmed.replace(entityPattern, match => {
+        const normalized = match.trim().toLowerCase();
+        const hasKeyword = entityKeywords.some(k => normalized.includes(k));
+        if(!hasKeyword) return match;
+        return isAllowedEntity(match) ? match : DISALLOWED_TOKEN;
+      });
+    }
+
+    function walk(value, parentKey){
+      if(value === null || value === undefined) return '';
+      if(typeof value === 'string'){
+        if(parentKey === 'allowed') return value;
+        return scrubString(value);
+      }
+      if(Array.isArray(value)) return value.map(v=>walk(v, parentKey));
+      if(typeof value === 'object'){
+        const next={};
+        Object.entries(value).forEach(([k,v])=>{ next[k]=walk(v,k); });
+        return next;
+      }
+      return value;
+    }
+
+    return walk(rawData);
+  }
+
   function buildDoc(data){
     const now = new Date().toLocaleString('en-GB');
 
-    const regulator = (data.g.regulator || DEFAULT_REGULATOR).trim() || DEFAULT_REGULATOR;
-    const jurisdiction = (data.g.jurisdiction || DEFAULT_JURISDICTION).trim() || DEFAULT_JURISDICTION;
     const allowedList = sanitizeAllowedList(data.g.allowed);
+    const sanitizedData = sanitizeCollectedData(data, allowedList);
+    const regulator = (sanitizedData.g.regulator || DEFAULT_REGULATOR).trim() || DEFAULT_REGULATOR;
+    const jurisdiction = (sanitizedData.g.jurisdiction || DEFAULT_JURISDICTION).trim() || DEFAULT_JURISDICTION;
     const allowedListDisplay = esc(allowedList.join(', '));
-    const tone = (data.s9.tone && data.s9.tone.trim()) ? data.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
-    const quantRule = (data.s9.quant && data.s9.quant.trim()) ? data.s9.quant.trim() : 'Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority.';
+    const tone = (sanitizedData.s9.tone && sanitizedData.s9.tone.trim()) ? sanitizedData.s9.tone.trim() : 'factual, procedural, decision-led; acknowledge diverging views; apply proportionality; avoid overpromising; commit to concrete next actions; avoid advocacy';
+    const quantRule = (sanitizedData.s9.quant && sanitizedData.s9.quant.trim()) ? sanitizedData.s9.quant.trim() : 'Use exact counts only where supported. Otherwise use consistent qualitative descriptors such as most, many, some, a minority.';
 
-    const filteredQuestions = data.questions.filter(q=>Object.values(q).some(v=>(v||'').trim().length));
-    const filteredSectors = data.sectors.filter(s=>Object.values(s).some(v=>(v||'').trim().length));
-    const filteredTerms = data.terms.filter(t=>Object.values(t).some(v=>(v||'').trim().length));
+    const filteredQuestions = sanitizedData.questions.filter(q=>Object.values(q).some(v=>(v||'').trim().length));
+    const filteredSectors = sanitizedData.sectors.filter(s=>Object.values(s).some(v=>(v||'').trim().length));
+    const filteredTerms = sanitizedData.terms.filter(t=>Object.values(t).some(v=>(v||'').trim().length));
 
     function commonConstraints(extra){
       return `
@@ -1001,14 +1044,14 @@ Policy position and next steps`;
     out += `<h3>Agent prompt</h3>`;
     out += p('Fill the cover page and opening description using the fixed template. Do not change labels or ordering. Use only provided facts; if a required fact is missing, write Not reported.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Feedback paper title', data.s1.feedbackTitle)
-      + renderIfPresent('Consultation title', data.s1.consultationTitle)
-      + renderIfPresent('Consultation publication date', data.s1.pubdate)
-      + renderIfPresent('Consultation URL', data.s1.url)
-      + renderIfPresent('One sentence description of this feedback paper', data.s1.oneliner)
-      + renderIfPresent('Contact inbox', data.s1.inbox)
-      + renderIfPresent('Issue month and year', data.s1.issue)
-      + renderIfPresent('Document reference / code', data.s1.ref)
+      + renderIfPresent('Feedback paper title', sanitizedData.s1.feedbackTitle)
+      + renderIfPresent('Consultation title', sanitizedData.s1.consultationTitle)
+      + renderIfPresent('Consultation publication date', sanitizedData.s1.pubdate)
+      + renderIfPresent('Consultation URL', sanitizedData.s1.url)
+      + renderIfPresent('One sentence description of this feedback paper', sanitizedData.s1.oneliner)
+      + renderIfPresent('Contact inbox', sanitizedData.s1.inbox)
+      + renderIfPresent('Issue month and year', sanitizedData.s1.issue)
+      + renderIfPresent('Document reference / code', sanitizedData.s1.ref)
       + `</ul>`;
     out += `<p><strong>Required output template:</strong></p><pre>[feedback paper title]
 
@@ -1031,11 +1074,11 @@ Issued: [issue month year]</pre>`;
       if(t && !themeHeadings.includes(t)) themeHeadings.push(t);
     });
 
-    const execHeadingLines = (data.s2.execHeads || DEFAULT_EXEC_HEADS).split(/\n+/).map(h=>h.trim()).filter(Boolean);
+    const execHeadingLines = (sanitizedData.s2.execHeads || DEFAULT_EXEC_HEADS).split(/\n+/).map(h=>h.trim()).filter(Boolean);
     const execHeadingBlock = execHeadingLines.length
       ? execHeadingLines.map(h=>esc(h)).join('\n   ')
       : esc(DEFAULT_EXEC_HEADS).replace(/\n/g,'\n   ');
-    const includeLines = (data.s2.includes || '').split(/\n+/).map(l=>l.trim()).filter(Boolean);
+    const includeLines = (sanitizedData.s2.includes || '').split(/\n+/).map(l=>l.trim()).filter(Boolean);
     const includeBlock = includeLines.length ? includeLines.map(l=>'   '+esc(l)).join('\n') + '\n' : '';
 
     // Step 2 prompt
@@ -1043,9 +1086,9 @@ Issued: [issue month year]</pre>`;
     out += p('Build the contents page using the fixed ordering and labels. Defaults apply if no headings are provided by the user. Do not change labels or numbering.');
     out += `<p><strong>Inputs:</strong></p><ul>`
       + renderIfPresent('Executive summary subheadings (order preserved)', execHeadingLines.join('\n'))
-      + renderIfPresent('Main body structure descriptor', data.s2.bodyStruct)
+      + renderIfPresent('Main body structure descriptor', sanitizedData.s2.bodyStruct)
       + renderIfPresent('Thematic headings (order preserved)', themeHeadings.join('\n'))
-      + renderIfPresent('Additional include sections', data.s2.includes)
+      + renderIfPresent('Additional include sections', sanitizedData.s2.includes)
       + `</ul>`;
     out += `<p><strong>Required output template:</strong></p><pre>Contents
  1. Executive summary
@@ -1059,7 +1102,7 @@ ${includeBlock}Glossary</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>`
       + `<li>Preserve capitalisation exactly as shown.</li>`
       + `<li>List thematic headings under section 2 in the order provided; if none are provided, leave placeholders blank.</li>`
-      + `<li>Describe the main body as: ${esc(data.s2.bodyStruct || DEFAULT_BODY_STRUCT)}</li>`
+      + `<li>Describe the main body as: ${esc(sanitizedData.s2.bodyStruct || DEFAULT_BODY_STRUCT)}</li>`
       + `<li>Do not add a contents label on the cover page; contents starts here.</li>`
     + `</ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
@@ -1069,11 +1112,11 @@ ${includeBlock}Glossary</pre>`;
     out += `<h2>Step 3: consultation scope recap</h2><h3>Agent prompt</h3>`;
     out += p('Draft the Executive summary · Introduction subsection using the fixed spine. Define “CP” once here, then use “CP” thereafter.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Consultation title', data.s1.consultationTitle)
-      + renderIfPresent('Key areas addressed', data.s3.areas)
-      + renderIfPresent('Regulated population in scope', data.s3.population)
-      + renderIfPresent('Number of consultation questions', data.s3.qcount)
-      + renderIfPresent('Engagement facts (to weave in bullets)', `${data.s5.responses ? 'Responses: ' + data.s5.responses + '; ' : ''}${data.s5.events ? 'Events: ' + data.s5.events + '; ' : ''}${data.s5.categories ? 'Categories: ' + data.s5.categories : ''}`)
+      + renderIfPresent('Consultation title', sanitizedData.s1.consultationTitle)
+      + renderIfPresent('Key areas addressed', sanitizedData.s3.areas)
+      + renderIfPresent('Regulated population in scope', sanitizedData.s3.population)
+      + renderIfPresent('Number of consultation questions', sanitizedData.s3.qcount)
+      + renderIfPresent('Engagement facts (to weave in bullets)', `${sanitizedData.s5.responses ? 'Responses: ' + sanitizedData.s5.responses + '; ' : ''}${sanitizedData.s5.events ? 'Events: ' + sanitizedData.s5.events + '; ' : ''}${sanitizedData.s5.categories ? 'Categories: ' + sanitizedData.s5.categories : ''}`)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>1. Executive summary
 Introduction
@@ -1093,8 +1136,8 @@ Introduction
     out += `<h2>Step 4: background context</h2><h3>Agent prompt</h3>`;
     out += p('Draft the Executive summary · Background subsection, filling only that label with concise paragraphs.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Internal drivers and programme references', data.s4.drivers)
-      + renderIfPresent('What changed since related work', data.s4.changed)
+      + renderIfPresent('Internal drivers and programme references', sanitizedData.s4.drivers)
+      + renderIfPresent('What changed since related work', sanitizedData.s4.changed)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>Background
 [paragraphs]</pre>`;
@@ -1109,10 +1152,10 @@ Introduction
     out += `<h2>Step 5: engagement facts</h2><h3>Agent prompt</h3>`;
     out += p('Draft the engagement facts lines to support the Executive summary · Introduction bullets and the respondents narrative.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Number of formal responses', data.s5.responses)
-      + renderIfPresent('Events and participation', data.s5.events)
-      + renderIfPresent('Respondent categories', data.s5.categories)
-      + renderIfPresent('Confidentiality handling notes', data.s5.conf)
+      + renderIfPresent('Number of formal responses', sanitizedData.s5.responses)
+      + renderIfPresent('Events and participation', sanitizedData.s5.events)
+      + renderIfPresent('Respondent categories', sanitizedData.s5.categories)
+      + renderIfPresent('Confidentiality handling notes', sanitizedData.s5.conf)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>Introduction bullets use “›”.
 › [response count line]
@@ -1126,10 +1169,10 @@ Introduction
 
     // Step 6 prompt
     out += `<h2>Step 6: international context</h2><h3>Agent prompt</h3>`;
-    const devCount = (data.s6.devs || '').split(/\n/).map(s=>s.trim()).filter(Boolean).length;
+    const devCount = (sanitizedData.s6.devs || '').split(/\n/).map(s=>s.trim()).filter(Boolean).length;
     out += p('Draft the Executive summary · International context subsection using only the provided external developments.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('External developments (bullets only)', data.s6.devs)
+      + renderIfPresent('External developments (bullets only)', sanitizedData.s6.devs)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>International context
 [paragraphs or bullets]</pre>`;
@@ -1145,9 +1188,9 @@ Introduction
     out += `<h2>Step 7: feedback themes</h2><h3>Agent prompt</h3>`;
     out += p('Draft the Executive summary · Feedback summary subsection using the fixed bullet glyph.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Coding frame', data.s7.frame)
-      + renderIfPresent('Theme candidates', data.s7.themes)
-      + renderIfPresent('Notable divergences', data.s7.div)
+      + renderIfPresent('Coding frame', sanitizedData.s7.frame)
+      + renderIfPresent('Theme candidates', sanitizedData.s7.themes)
+      + renderIfPresent('Notable divergences', sanitizedData.s7.div)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>Feedback summary
 › [theme bullet]
@@ -1165,10 +1208,10 @@ Introduction
     out += `<h2>Step 8: policy position and next steps</h2><h3>Agent prompt</h3>`;
     out += p('Draft the Executive summary · Policy position and next steps subsection using the fixed paragraph-then-bullets pattern.');
     out += `<p><strong>Inputs:</strong></p><ul>`
-      + renderIfPresent('Decisions list', data.s8.decisions)
-      + renderIfPresent('What changed due to feedback', data.s8.changed)
-      + renderIfPresent('Delivery route', data.s8.route)
-      + renderIfPresent('Timeline anchors', data.s8.timeline)
+      + renderIfPresent('Decisions list', sanitizedData.s8.decisions)
+      + renderIfPresent('What changed due to feedback', sanitizedData.s8.changed)
+      + renderIfPresent('Delivery route', sanitizedData.s8.route)
+      + renderIfPresent('Timeline anchors', sanitizedData.s8.timeline)
       + `</ul>`;
     out += `<p><strong>Required output template slice:</strong></p><pre>Policy position and next steps
 [one short paragraph]
@@ -1280,6 +1323,7 @@ Outcome:
       <li>CP defined once, then CP used thereafter.</li>
       <li>Respondents table header is exactly “Sector | No. of responses”.</li>
       <li>Glossary includes the fixed boilerplate line and only user supplied terms.</li>
+      <li>Delete any non-allowlisted institutions that slipped through from earlier drafts.</li>
       <li>No institutions or jurisdictions appear outside the allowed list (${allowedListDisplay}).</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not restate inputs; output only the full compiled paper.</li>')}`;
