@@ -232,7 +232,7 @@
 
         <div class="sideBox">
           <strong>Output</strong><br />
-          Download a Word <code>.doc</code> containing nine prompts plus an optional final assembly check. Paste each prompt into your LLM agent to generate the corresponding section.
+          Download a Word <code>.doc</code> containing prompts. Paste each prompt into your LLM agent to generate the corresponding section.
         </div>
       </aside>
 
@@ -583,13 +583,12 @@
     <button class="secondary" id="prev">← Back</button>
     <button class="secondary" id="next">Next →</button>
   </div>
-  <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;flex:1">
-    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
-      <button class="primary" id="export">Download Word prompts</button>
-      <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
-    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;flex:1">
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+        <button class="primary" id="export">Download Word prompts</button>
+        <label class="hint" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="include_final" checked /> Include final assembly prompt</label>
+      </div>
     <div class="note"><strong>File:</strong> [prefix]feedback_paper_agent_prompts[optional_ref].doc (applied on export)</div>
-    <div class="note">Export includes: steps 1–9 plus optional final assembly prompt.</div>
   </div>
     </footer>
   </div>
@@ -1361,7 +1360,7 @@ Outcome:
 <body>
   <h1>Feedback paper workflow · agent prompts</h1>
   <p><strong>Generated on:</strong> ${esc(now)}</p>
-  <p>This file contains ${includedStepCount} prompt${includedStepCount === 1 ? '' : 's'} (Steps 1–9 plus optional final assembly), prefilled with your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
+  <p>This file contains prefilled prompts based on your inputs. Paste the prompt text into your LLM agent to generate the corresponding draft sections.</p>
   ${out}
 </body>
 </html>`;
