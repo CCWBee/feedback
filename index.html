@@ -586,7 +586,7 @@
       <section class="step" data-step="10">
         <h2>Step 10: final assembly and structure check (run last)</h2>
         <p class="desc">This step runs automatically when you download the Word prompts, compiling every section and applying the final checklist.</p>
-        <p class="desc"><strong>Run this step after completing Steps 1–9 to standardize tone and structure.</strong></p>
+        <p class="desc"><strong>Run this step after completing Steps 1–9 to standardize tone and structure, or paste everything into one one-shot prompt if you prefer a manual run.</strong></p>
         <div class="metaRow">
           <span class="role">Role: export automation</span>
           <span class="purpose">Purpose: assemble and quality check</span>
@@ -609,6 +609,7 @@
           <ul class="hint">
             <li>Cover page, contents order, and executive summary headings match the fixed template.</li>
             <li>Bullets use the required glyphs and all question modules keep the labelled pattern.</li>
+            <li>Tone, capitalization, and CP usage are harmonized across the executive summary, modules, and back matter.</li>
             <li>Outcome paragraphs start with “Outcome:” and respondents/glossary tables use the fixed headers.</li>
             <li>Remove any institutions not on the allowlist if they slipped into earlier drafts.</li>
             <li>Allowed institutions are enforced from the Global controls list.</li>
@@ -1313,11 +1314,13 @@ Outcome:
     out += `<hr/><h2>Step 10: final assembly and structure check (run last)</h2><h3>Agent prompt</h3>`;
     out += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
     out += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
+    out += p('If you prefer a one-shot run, paste outputs from Steps 1–9 with this checklist and harmonize tone, capitalization, CP usage, and bullet glyphs across every section.');
     out += `<p><strong>Structure checklist:</strong></p><ul>
       <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
       <li>Contents uses the fixed ordering and naming.</li>
       <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
       <li>All bullets in the executive summary and Industry feedback use “›”.</li>
+      <li>Tone, capitalization, and CP usage are harmonized across all sections, including back matter.</li>
       <li>Every question module includes all labels in order: Overview; Quantitative results; Industry feedback; Our response; Outcome:.</li>
       <li>“Outcome:” exists for each module and is a single paragraph starting with “Outcome:”.</li>
       <li>CP defined once, then CP used thereafter.</li>
