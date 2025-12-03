@@ -149,11 +149,11 @@
     textarea,input,select{
       border-radius:10px;border:1px solid var(--border);
       background:var(--input);color:var(--text);
-      padding:8px 9px;font-size:13px;outline:none;
+      padding:10px 11px;font-size:13px;line-height:1.4;outline:none;
+      min-height:42px;
       transition:border-color .12s ease,box-shadow .12s ease,background .12s ease;
     }
-    textarea{resize:vertical;min-height:70px}
-    input{min-height:32px}
+    textarea{resize:vertical}
     textarea:focus,input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 1px rgba(8,125,186,.35);background:var(--inputFocus)}
     .hint{font-size:11px;color:var(--muted)}
     .missing textarea,.missing input,.missing select{border-color:var(--bad);box-shadow:0 0 0 1px rgba(248,113,113,.5)}
