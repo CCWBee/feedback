@@ -1035,7 +1035,7 @@
           <li>Mention only institutions and jurisdictions that appear in the allowed list (${allowedListDisplay}) or are explicitly named in the user inputs. If any input names an entity outside the allowed list, replace it with "[not included: not in allowed list]".</li>
           <li>Apply the tone and framing rules: ${esc(tone)}</li>
           <li>Quantification rule: ${esc(quantRule)}</li>
-          <li>Do not restate inputs.</li>
+          <li>Do not restate or summarise inputs except where the template explicitly requires verbatim reproduction (e.g., consultation question text, glossary definitions, quantitative results).</li>
           <li>Output only the requested section text, no preambles.</li>
           <li>Do not start more than one sentence in a paragraph with the same first two words.</li>
           ${extra || ''}
