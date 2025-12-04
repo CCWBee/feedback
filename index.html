@@ -1068,6 +1068,13 @@
       return output.join('\n');
     }
 
+    function formatModuleHeading(theme, index){
+      const cleaned = (theme || '').trim();
+      const number = index + 1;
+      if(cleaned) return `${esc(cleaned)} – Question ${number}`;
+      return `Question ${number}`;
+    }
+
     function buildStep10Prompt(){
       let section = `<hr/><h2>Step 10: final assembly and structure check (run last, no user input)</h2><h3>Agent prompt</h3>`;
       section += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
@@ -1277,8 +1284,9 @@ Introduction
     } else {
       out += '<ol>';
       filteredQuestions.forEach((q,i)=>{
+        const moduleHeading = formatModuleHeading(q.theme, i);
         out += `<li>
-          <p><strong>Thematic heading:</strong> ${esc((q.theme||'').trim())}</p>
+          <p><strong>Module heading (auto-numbered):</strong> ${moduleHeading}</p>
           ${renderIfPresent('Consultation question text', q.qtext)?.replace('<li','<p').replace('</li>','</p>') || ''}
           ${renderIfPresent('What the CP proposed', q.proposal)?.replace('<li','<p').replace('</li>','</p>') || ''}
           ${renderIfPresent('Feedback themes and divergence', q.themes)?.replace('<li','<p').replace('</li>','</p>') || ''}
@@ -1319,7 +1327,7 @@ Introduction
     }
 
     out += `<p><strong>Required output templates:</strong></p><ul>
-      <li>Question module spine (apply per question under its thematic heading):<pre>Q[n]. [question title]: [question text]
+      <li>Question module spine (apply per question under its thematic heading):<pre>{Thematic heading} – Question {auto-number}
 Overview
 [overview paragraph(s)]
 Quantitative results
@@ -1337,6 +1345,7 @@ Outcome:
 
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Do not change labels or ordering within modules.</li>
+      <li>Auto-number each question module in order (Question 1, Question 2, …); if numbering is unsuitable, use the thematic heading alone.</li>
       <li>Industry feedback bullets must use glyph › only.</li>
       <li>“Outcome:” must be a single paragraph starting with “Outcome:”.</li>
       <li>Group questions under their provided thematic headings without renaming them.</li>
