@@ -1003,6 +1003,7 @@
           <li>Professional regulatory audience.</li>
           <li>Use the regulator name exactly as: ${esc(regulator)}. Do not write "the regulator" unless quoting.</li>
           <li>Use jurisdiction exactly as: ${esc(jurisdiction)}.</li>
+          <li>Omit empty sections that are typically omitted in real papers; use “Not reported” only for missing cover-page fields.</li>
           <li>Only mention institutions/standards/jurisdictions that appear in user inputs or this exact list: JFSC, Jersey, Government of Jersey, States of Jersey, EU, UK, FCA, ISSB, IFRS, CSRD, SFDR, SDR, TCFD, SEC, ESMA, IOSCO, EBA. If uncertain, omit or rewrite generically; never invent anything else.</li>
           <li>Apply the tone and framing rules: ${esc(tone)}</li>
           <li>Quantification rule: ${esc(quantRule)}</li>
@@ -1049,7 +1050,7 @@
     function buildStep10Prompt(){
       let section = `<hr/><h2>Step 10: final assembly and structure check (run last, no user input)</h2><h3>Agent prompt</h3>`;
       section += p('Run this step after completing Steps 1–9 to standardize tone and structure.');
-      section += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; if missing, write Not reported or omit as instructed.');
+      section += p('Assemble the full paper using outputs from Steps 1-9, then run the structure checklist below and silently correct any drift before final output. Use only provided facts; omit empty sections as instructed.');
       section += p('If you prefer a one-shot run, paste outputs from Steps 1–9 with this checklist and harmonize tone, capitalization, CP usage, and bullet glyphs across every section.');
       section += `<p><strong>Structure checklist:</strong></p><ul>
         <li>Cover page matches the fixed pattern (title, one sentence description, document reference, consultation line with URL and date, enquiries line, Issued line).</li>
@@ -1145,7 +1146,7 @@ Introduction
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Bullet glyph must be exactly › for every bullet.</li>
       <li>Use the paragraph to define the consultation once as “Consultation Paper (CP) [title]”, then refer to CP thereafter.</li>
-      <li>Populate bullets with scope and engagement facts; write Not reported if an input is missing.</li>
+      <li>Populate bullets with scope and engagement facts; omit bullets with no supporting input.</li>
       <li>Do not add extra subheadings.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Define “CP” once here, then use “CP” thereafter.</li>')}`;
@@ -1162,7 +1163,7 @@ Introduction
 [paragraphs]</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Keep this within the Executive summary structure; do not introduce new labels.</li>
-      <li>Use only provided facts; if nothing changed, write Not reported.</li>
+      <li>Use only provided facts; if nothing changed, omit the Background section.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
     out += `<hr/>`;
@@ -1181,7 +1182,7 @@ Introduction
 › [events or categories line]</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Bullet glyph must be ›.</li>
-      <li>Use one-sentence bullets only; write Not reported if data is missing.</li>
+      <li>Use one-sentence bullets only; omit bullets without data.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
     out += `<hr/>`;
@@ -1197,7 +1198,7 @@ Introduction
 [paragraphs or bullets]</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Use only the supplied developments; do not add institutions outside the allowed list (${allowedListDisplay}).</li>
-      <li>If fewer than 2 developments are provided (${devCount}), output exactly: “International context: not included in this paper.”</li>
+      <li>If fewer than 2 developments are provided (${devCount}), omit the International context section entirely.</li>
       <li>If developments are provided, keep them as short statements (one per line or sentence).</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints()}`;
@@ -1217,7 +1218,7 @@ Introduction
 …</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>
       <li>Use glyph › for every bullet.</li>
-      <li>Keep between four and six bullets unless fewer inputs exist; write Not reported if none.</li>
+      <li>Keep between four and six bullets unless fewer inputs exist; omit the Feedback summary section if none.</li>
       <li>Do not add subheadings.</li>
     </ul>`;
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Define “CP” once in Introduction; use CP thereafter.</li>')}`;
@@ -1276,7 +1277,7 @@ Introduction
 
     out += `<p><strong>Respondent counts by sector:</strong></p>`;
     if(!filteredSectors.length){
-      out += p('Respondent breakdown: not reported in this paper.');
+      out += p('No respondent breakdown provided.');
     } else {
       out += '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse">';
       out += '<tr><th>Sector</th><th>No. of responses</th></tr>';
