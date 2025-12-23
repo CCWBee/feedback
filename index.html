@@ -1057,7 +1057,7 @@
         <li>Executive summary uses only the five subheadings: Introduction; Background; International context; Feedback summary; Policy position and next steps.</li>
         <li>All bullets in the executive summary and Industry feedback use “›”.</li>
         <li>Tone, capitalization, and CP usage are harmonized across all sections, including back matter.</li>
-        <li>Every question module includes all labels in order: Overview; Quantitative results; Industry feedback; Our response; Outcome:.</li>
+        <li>Every question module includes the fixed labels in order: Overview; Industry feedback; Our response; Outcome:. Include Quantitative results only when data is provided.</li>
         <li>“Outcome:” exists for each module and is a single paragraph starting with “Outcome:”.</li>
         <li>CP defined once, then CP used thereafter.</li>
         <li>Respondents table header is exactly “Sector | No. of responses”.</li>
@@ -1246,7 +1246,7 @@ Introduction
 
     // Step 9 prompt (includes module template + back matter)
     out += `<h2>Step 9: question modules, respondents table, glossary</h2><h3>Agent prompt</h3>`;
-    out += p('Draft the main body modules, respondents section, and glossary using the fixed templates. Use only provided facts; if missing, delete the relevant line (or insert [[QUANT-TBC]] and clear later) rather than writing Not reported.');
+    out += p('Draft the main body modules, respondents section, and glossary using the fixed templates. Use only provided facts; if missing, delete the relevant line rather than writing Not reported.');
 
     out += `<p><strong>Inputs:</strong></p>`;
     out += `<ul>
@@ -1306,8 +1306,10 @@ Introduction
       <li>Question module spine (apply per question under its thematic heading):<pre>{Thematic heading} – Question {auto-number}
 Overview
 [overview paragraph(s)]
+{{#if module.quant}}
 Quantitative results
-[one line of exact counts; if absent delete this line or use [[QUANT-TBC]] as a temporary placeholder to be cleared later]
+{{module.quant}}
+{{/if}}
 Industry feedback
 › [bullet]
 › [bullet]
@@ -1325,7 +1327,8 @@ Outcome:
       <li>Industry feedback bullets must use glyph › only.</li>
       <li>“Outcome:” must be a single paragraph starting with “Outcome:”.</li>
       <li>Group questions under their provided thematic headings without renaming them.</li>
-      <li>When any field is missing, delete the corresponding line (or use [[QUANT-TBC]] as a temporary placeholder to remove later) instead of inserting Not reported.</li>
+      <li>Omit the Quantitative results section when no data is provided.</li>
+      <li>When any field is missing, delete the corresponding line instead of inserting Not reported.</li>
     </ul>`;
 
     out += `<p><strong>Constraints:</strong></p>${commonConstraints('<li>Do not invent institutions outside the allowed list.</li>')}`;
