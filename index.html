@@ -719,6 +719,19 @@
       .replace(/"/g,'&quot;');
   }
 
+  function stripLeadingConsultationOn(value){
+    return (value || '').replace(/^consultation on\s+/i,'').trim();
+  }
+
+  function buildConsultationLine(title, url, pubdate){
+    const cleanedTitle = stripLeadingConsultationOn(title);
+    const titlePart = cleanedTitle ? `consultation on ${cleanedTitle}` : 'consultation';
+    const urlPart = (url || '').trim() ? ` (${url.trim()})` : '';
+    const datePart = (pubdate || '').trim();
+    const dateClause = datePart ? ` published on ${datePart}` : '';
+    return `This paper reports on responses received to our ${titlePart}${urlPart}${dateClause}.`;
+  }
+
   function validateStep(stepIndex,soft){
     const step = steps[stepIndex];
     if(!step) return true;
@@ -1072,11 +1085,16 @@
       + renderIfPresent('Issue month and year', data.s1.issue)
       + renderIfPresent('Document reference / code', data.s1.ref)
       + `</ul>`;
+    const consultationTemplateLine = buildConsultationLine(
+      '[consultation title]',
+      data.s1.url ? '[consultation url]' : '',
+      '[consultation publication date]'
+    );
     out += `<p><strong>Required output template:</strong></p><pre>[feedback paper title]
 
 [one sentence description of this feedback paper]
 Document reference: [document reference / code]
-This paper reports on responses received to our consultation on [consultation title] ([consultation url]) published on [consultation publication date].
+${consultationTemplateLine}
 Further enquiries concerning the consultation can be directed to: [contact inbox]
 Issued: [issue month year]</pre>`;
     out += `<p><strong>Rules:</strong></p><ul>
