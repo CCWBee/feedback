@@ -618,8 +618,7 @@
    Feedback summary
    Policy position and next steps
 2. Consultation feedback and our comments
-   [thematic heading 1]
-   [thematic heading 2]
+   <<<THEMATIC_SECTIONS>>>
 3. List of respondents
    Glossary`;
   const DEFAULT_REGULATOR = 'JFSC';
@@ -989,20 +988,15 @@
     function injectThematicHeadings(template, headings, isDefault){
       if(!isDefault) return template;
       const lines = template.split(/\n/);
-      let replaced=false;
       const output=[];
       lines.forEach(line=>{
         const trimmed=line.trim();
-        if(trimmed.toLowerCase().startsWith('[thematic heading')){
-          if(!replaced){
-            const indent = (line.match(/^\s*/) || [''])[0];
-            if(headings.length){
-              headings.forEach(h=>output.push(`${indent}${h}`));
-            } else {
-              output.push(line);
-            }
-            replaced=true;
+        if(trimmed === '<<<THEMATIC_SECTIONS>>>'){
+          const indent = (line.match(/^\s*/) || [''])[0];
+          if(headings.length){
+            headings.forEach(h=>output.push(`${indent}${h}`));
           }
+          // Skip the marker line entirely if no headings
           return;
         }
         output.push(line);
@@ -1041,148 +1035,236 @@
       });
     });
 
-    const payload = {
-      meta: {
-        generatedOn: now
-      },
-      regulator,
-      jurisdiction,
-      allowedList,
-      tone,
-      quantRule,
-      consultationLine: buildConsultationLine(data.s1.consultationTitle, data.s1.url, data.s1.pubdate),
-      s1: {...data.s1},
-      s2: {template: contentsTemplateForOutput},
-      s3: {...data.s3},
-      s4: {...data.s4},
-      s5: {...data.s5},
-      s6: {...data.s6},
-      s7: {...data.s7},
-      s8: {...data.s8},
-      s9: {...data.s9},
-      contentsLines,
-      modulesByTheme,
-      respondents: filteredSectors,
-      glossary: filteredTerms
-    };
+    // Build flat data section (replaces JSON payload)
+    function buildDataSection() {
+      const lines = [];
 
-    const output = `Feedback paper master prompt (single-template workflow)
+      const addSection = (title, fields) => {
+        const nonEmpty = fields.filter(([k, v]) => v && String(v).trim());
+        if (nonEmpty.length) {
+          lines.push(`=== ${title} ===`);
+          nonEmpty.forEach(([k, v]) => lines.push(`${k}: ${v}`));
+          lines.push('');
+        }
+      };
+
+      const consultationLine = buildConsultationLine(data.s1.consultationTitle, data.s1.url, data.s1.pubdate);
+
+      addSection('METADATA', [
+        ['Title', data.s1.feedbackTitle],
+        ['One-liner', data.s1.oneliner],
+        ['Document reference', data.s1.ref],
+        ['Consultation', data.s1.consultationTitle],
+        ['Consultation URL', data.s1.url],
+        ['Publication date', data.s1.pubdate],
+        ['Contact', data.s1.inbox],
+        ['Issue date', data.s1.issue],
+        ['Consultation line', consultationLine]
+      ]);
+
+      addSection('SCOPE', [
+        ['Key areas', data.s3.areas],
+        ['Regulated population', data.s3.population],
+        ['Question count', data.s3.qcount]
+      ]);
+
+      addSection('BACKGROUND', [
+        ['Drivers', data.s4.drivers],
+        ['What changed', data.s4.changed]
+      ]);
+
+      addSection('ENGAGEMENT', [
+        ['Responses', data.s5.responses],
+        ['Events', data.s5.events],
+        ['Categories', data.s5.categories],
+        ['Confidentiality', data.s5.conf]
+      ]);
+
+      addSection('INTERNATIONAL CONTEXT', [
+        ['Developments', data.s6.devs]
+      ]);
+
+      addSection('THEMES', [
+        ['Coding frame', data.s7.frame],
+        ['Theme candidates', data.s7.themes],
+        ['Divergences', data.s7.div]
+      ]);
+
+      addSection('POLICY POSITION', [
+        ['Decisions', data.s8.decisions],
+        ['Delivery route', data.s8.route],
+        ['Timeline', data.s8.timeline],
+        ['What changed', data.s8.changed]
+      ]);
+
+      // Contents template
+      lines.push('=== CONTENTS TEMPLATE ===');
+      lines.push(contentsTemplateForOutput);
+      lines.push('');
+
+      // Question modules in flat format
+      if (modulesByTheme.length) {
+        modulesByTheme.forEach(group => {
+          lines.push(`=== THEME: ${group.theme} ===`);
+          group.modules.forEach(m => {
+            lines.push(`--- ${m.title} ---`);
+            if (m.qtext) lines.push(`Question text: ${m.qtext}`);
+            if (m.proposal) lines.push(`Proposal: ${m.proposal}`);
+            if (m.themes) lines.push(`Feedback themes: ${m.themes}`);
+            if (m.response) lines.push(`Response notes: ${m.response}`);
+            if (m.outcome) lines.push(`Outcome: ${m.outcome}`);
+            if (m.quant) lines.push(`Quantitative: ${m.quant}`);
+            lines.push('');
+          });
+        });
+      }
+
+      // Respondents
+      if (filteredSectors.length) {
+        lines.push('=== RESPONDENTS ===');
+        filteredSectors.forEach(s => {
+          let line = `${s.name}: ${s.count}`;
+          if (s.note) line += ` (${s.note})`;
+          lines.push(line);
+        });
+        lines.push('');
+      }
+
+      // Glossary
+      if (filteredTerms.length) {
+        lines.push('=== GLOSSARY ===');
+        filteredTerms.forEach(t => {
+          lines.push(`${t.term}: ${t.def}`);
+        });
+        lines.push('');
+      }
+
+      return lines.join('\n');
+    }
+
+    const dataSection = buildDataSection();
+
+    // Worked example section
+    const example = `=== EXAMPLE OUTPUT FORMAT ===
+
+This example shows how one question module should be formatted in the final paper:
+
+---
+Governance and oversight
+
+Question 1
+Overview
+The consultation sought views on the proposed governance framework for registered persons, specifically asking whether the requirements for board oversight and senior management accountability were appropriately calibrated for the ${jurisdiction} market.
+
+Industry feedback
+> Most respondents supported the intent of the framework but requested clarification on board responsibilities
+> Some raised concerns about proportionality for smaller firms with limited governance structures
+> Industry associations suggested alignment with UK FCA's approach to senior managers
+> A minority questioned whether the requirements exceeded international standards
+
+Our response
+${regulator} acknowledges the feedback on proportionality and recognises that a one-size-fits-all approach may not serve all regulated populations effectively. The framework is intended to establish minimum standards while allowing flexibility in implementation.
+
+In response to concerns about alignment, ${regulator} has reviewed the UK FCA's Senior Managers and Certification Regime and confirms that the proposed requirements are broadly consistent with international practice while being adapted for ${jurisdiction}'s regulatory environment.
+
+Outcome: ${regulator} will proceed with the governance requirements as proposed, with additional guidance to be published on proportionate application for smaller firms.
+---
+
+END OF EXAMPLE`;
+
+    // Prose instructions (replaces Handlebars template)
+    const instructions = `WRITING INSTRUCTIONS
+
+You are drafting a feedback paper for a professional regulatory audience. Use the data above exactly as supplied. Output the full paper only; no preamble or commentary.
+
+RULES:
+- British English only
+- Always write "${regulator}", never "the regulator"
+- Always write "${jurisdiction}", never "the jurisdiction"
+- Only reference these institutions: ${allowedList.join(', ')}
+- Tone: ${tone}
+- Numbers: ${quantRule}
+- Never start two sentences in a paragraph with the same word
+- Do not add content beyond what's provided
+- Omit sections where no data is provided
+
+DOCUMENT STRUCTURE:
+
+1. COVER PAGE
+Write these elements in order:
+- Title (use the Title field)
+- One-liner (use the One-liner field)
+- "Document reference: [Document reference]" (or "Not reported" if missing)
+- The Consultation line field verbatim
+- "Further enquiries concerning the consultation can be directed to: [Contact]"
+- "Issued: [Issue date]"
+
+2. CONTENTS
+Copy the Contents Template section exactly as provided. The thematic headings have already been inserted.
+
+3. EXECUTIVE SUMMARY
+
+Introduction:
+- Write "Key areas addressed:" followed by the Key areas value (if present)
+- Write "Regulated population in scope:" followed by the Regulated population value (if present)
+- Write "Number of consultation questions:" followed by the Question count (if present)
+- Write engagement stats as bullets: "> Responses: [value]", "> Events: [value]", "> Categories: [value]" (only if values present)
+
+Background:
+- Expand the Drivers field into 1-2 formal paragraphs
+- If What changed is present, add it as a follow-on paragraph
+
+International context:
+- Expand the Developments field into 1-2 paragraphs (omit this subsection entirely if no data)
+
+Feedback summary:
+- Expand the Theme candidates into 2-3 paragraphs summarising what respondents said
+- If Divergences is present, add it as a separate paragraph noting where views differed
+
+Policy position and next steps:
+- Expand Decisions into a paragraph on what ${regulator} has decided
+- Expand What changed (if present) into what adjusted due to feedback
+- Expand Delivery route into how implementation will happen
+- Expand Timeline into when things will happen
+
+4. CONSULTATION FEEDBACK AND OUR COMMENTS
+
+For each THEME section in the data:
+- Write the theme name as a heading (e.g., "Governance and oversight")
+
+For each Question under that theme, produce these subsections:
+
+a) "Question N" as a subheading (e.g., "Question 1")
+
+b) "Overview" - Combine Question text and Proposal into 1-2 paragraphs explaining what was asked and proposed
+
+c) "Quantitative results" (only if Quantitative data exists) - Present the quantitative breakdown
+
+d) "Industry feedback" - Convert Feedback themes into 3-5 bullet points, each starting with ">"
+   Use qualitative descriptors: "Most respondents...", "Some raised...", "A minority..."
+
+e) "Our response" - Expand Response notes into 2-3 formal paragraphs explaining ${regulator}'s position and reasoning
+
+f) "Outcome:" - Write a single decisive sentence starting with "Outcome:" using the Outcome field
+
+5. LIST OF RESPONDENTS
+- Write "3. List of respondents" as a heading
+- Create a table with columns: Sector | No. of responses
+- One row per respondent entry from the data
+
+6. GLOSSARY
+- Write "Glossary" as a heading
+- Write: "Defined terms are indicated throughout this document as follows:"
+- Create a table with columns: Term | Definition
+- One row per glossary entry from the data`;
+
+    const output = `Feedback paper master prompt
 Generated on: ${now}
 
-DATA PAYLOAD (JSON)
-${JSON.stringify(payload, null, 2)}
+${dataSection}
+${example}
 
-MASTER PROMPT TEMPLATE (Handlebars)
-You are drafting a feedback paper for a professional regulatory audience. Use the data payload exactly as supplied. Output the full paper only; no preamble or commentary.
-
-Constraints:
-- Use British English.
-- Use the regulator name exactly as: {{regulator}}. Do not write "the regulator" unless quoting.
-- Use jurisdiction exactly as: {{jurisdiction}}.
-- Only mention institutions/standards/jurisdictions from this allowlist: {{#each allowedList}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}.
-- Apply the tone and framing rules: {{tone}}.
-- Quantification rule: {{quantRule}}.
-- Do not restate or summarise inputs except where verbatim reproduction is required (consultation question text, glossary definitions, quantitative results).
-- Omit empty sections; use "Not reported" only for missing cover-page fields.
-- Do not start more than one sentence in a paragraph with the same first two words.
-
-Output template:
-{{s1.feedbackTitle}}
-
-{{s1.oneliner}}
-Document reference: {{#if s1.ref}}{{s1.ref}}{{else}}Not reported{{/if}}
-{{consultationLine}}
-Further enquiries concerning the consultation can be directed to: {{s1.inbox}}
-Issued: {{s1.issue}}
-
-{{#each contentsLines}}
-{{this}}
-{{/each}}
-
-1. Executive summary
-Introduction
-{{#if s3.areas}}Key areas addressed: {{s3.areas}}{{/if}}
-{{#if s3.population}}Regulated population in scope: {{s3.population}}{{/if}}
-{{#if s3.qcount}}Number of consultation questions: {{s3.qcount}}{{/if}}
-{{#if s5.responses}}› Responses: {{s5.responses}}{{/if}}
-{{#if s5.events}}› Events: {{s5.events}}{{/if}}
-{{#if s5.categories}}› Categories: {{s5.categories}}{{/if}}
-
-{{#if s4.drivers}}
-Background
-{{s4.drivers}}
-{{/if}}
-{{#if s4.changed}}
-{{s4.changed}}
-{{/if}}
-
-{{#if s6.devs}}
-International context
-{{s6.devs}}
-{{/if}}
-
-{{#if s7.themes}}
-Feedback summary
-{{s7.themes}}
-{{/if}}
-{{#if s7.div}}
-{{s7.div}}
-{{/if}}
-
-{{#if s8.decisions}}
-Policy position and next steps
-{{s8.decisions}}
-{{/if}}
-{{#if s8.changed}}
-{{s8.changed}}
-{{/if}}
-{{#if s8.route}}
-{{s8.route}}
-{{/if}}
-{{#if s8.timeline}}
-{{s8.timeline}}
-{{/if}}
-
-2. Consultation feedback and our comments
-{{#each modulesByTheme}}
-{{theme}}
-{{#each modules}}
-{{title}}
-Overview
-{{#if qtext}}{{qtext}}{{/if}}
-{{#if proposal}}{{proposal}}{{/if}}
-{{#if themes}}{{themes}}{{/if}}
-{{#if response}}{{response}}{{/if}}
-{{#if quant}}
-Quantitative results
-{{quant}}
-{{/if}}
-Industry feedback
-› [bullet]
-› [bullet]
-Our response
-[paragraphs]
-Outcome:
-Outcome: [single paragraph starting with "Outcome:"]
-{{/each}}
-{{/each}}
-
-3. List of respondents
-{{#if respondents.length}}
-Sector | No. of responses
-{{#each respondents}}
-{{name}} | {{count}}
-{{/each}}
-{{/if}}
-
-Glossary
-Defined terms are indicated throughout this document as follows:
-{{#if glossary.length}}
-Term | Definition
-{{#each glossary}}
-{{term}} | {{def}}
-{{/each}}
-{{/if}}
+${instructions}
 `;
 
     return output;
